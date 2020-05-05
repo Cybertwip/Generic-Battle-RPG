@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="hud0_scoreboardFrame.svg">
+  <defs
+     id="defs2">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath6090">
+      <circle
+         r="4.2333331"
+         style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.04;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="circle6092"
+         cx="-2.2252401e-007"
+         cy="297"
+         inkscape:label="avatar" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.35"
+     inkscape:cx="-14.239269"
+     inkscape:cy="34.022864"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer2"
+     showgrid="true"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4641" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer0"
+     style="display:inline">
+    <path
+       style="display:inline;opacity:1;fill:#a754a7;fill-opacity:1;stroke:none;stroke-width:0.1338615;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 4,1113.5195 c -2.2160129,0 -4,1.784 -4,4 v 10 c 0,2.216 1.7839871,4 4,4 h 92 c 2.216013,0 4,-1.784 4,-4 v -10 c 0,-2.216 -1.783987,-4 -4,-4 z m 0,2 h 92 c 1.107996,0 2,0.892 2,2 v 10 c 0,1.108 -0.892004,2 -2,2 H 4 c -1.1079957,0 -2,-0.892 -2,-2 v -10 c 0,-1.108 0.8920043,-2 2,-2 z"
+       transform="scale(0.26458333)"
+       id="rect4536"
+       inkscape:connector-curvature="0"
+       inkscape:label="scoreboardFrame" />
+  </g>
+</svg>

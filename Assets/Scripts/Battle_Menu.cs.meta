@@ -1,0 +1,28 @@
+fileFormatVersion: 2
+guid: 8a6ec592219f3444685c3fcc8ecccfcf
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - entry: {fileID: 1054691181131235599, guid: 1c1adeb85ec196946998127e794aad88, type: 3}
+  - magicContainer: {fileID: 1668127911132232690, guid: 77c059b62e078aa479ef9f781372f662,
+      type: 3}
+  - magicContainerParent: {fileID: 7234628333518311246, guid: 3551bb35e3020ef43a7590d52f4c0d47,
+      type: 3}
+  - itemContainer: {fileID: 8022675330059620013, guid: 7aba291b3c5d7bb4bb830135b252c026,
+      type: 3}
+  - itemContainerParent: {fileID: 5401013007757107704, guid: 0170ad52f3b27bf4aa7c5c461fbd0b39,
+      type: 3}
+  - attackContainer: {fileID: 269410502428976013, guid: 262f52f69388e214ab211f956acc4d84,
+      type: 3}
+  - attackContainerParent: {fileID: 5233203459440336320, guid: 3ede94645e9234440ac68683b2e08ce8,
+      type: 3}
+  - defenseContainer: {fileID: 756388279285307746, guid: 7c49323241e83ba4b8f5bf5f449b9d4d,
+      type: 3}
+  - defenseContainerParent: {fileID: 8381197773929214142, guid: 8269930aba8ebe1429adf1216d30e639,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: b6768c2296640f34da3ca774480d1d58
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - battleMenu: {instanceID: 0}
+  - jumpButton: {instanceID: 0}
+  - fireballButton: {instanceID: 0}
+  - attackButton: {instanceID: 0}
+  - defendButton: {instanceID: 0}
+  - itemButton: {instanceID: 0}
+  - platformingController: {fileID: 9100000, guid: 17fd992d9106edb42ad39477c97ade8f,
+      type: 2}
+  - battleController: {fileID: 9100000, guid: ce228d539096a7948bd86fff08500b74, type: 2}
+  - playerSpawnPoint: {instanceID: 0}
+  - enemySpawnPoint: {instanceID: 0}
+  - signal: {fileID: 8790832369522738438, guid: 6bae89c838e84874ea6595cbf19fcf27,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

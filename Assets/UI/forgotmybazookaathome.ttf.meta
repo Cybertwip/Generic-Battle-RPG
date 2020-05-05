@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 5f21b1fc688ed634bb1ed60df04507ed
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 18
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: ForgotMyBazookaAtHome
+  fontNames:
+  - ForgotMyBazookaAtHome
+  fallbackFontReferences:
+  - {instanceID: 0}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
