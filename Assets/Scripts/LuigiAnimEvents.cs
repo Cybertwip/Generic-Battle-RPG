@@ -6,12 +6,11 @@ using UnityEngine.UI;
 using TMPro;
 //using UnityEditor.Animations;
 
-public enum ControlState { PLATFORMING, BATTLE }
+//public enum ControlState { PLATFORMING, BATTLE }
 
 public class LuigiAnimEvents : MonoBehaviour
 {
-    public ControlState ctrlState;
-    Animator animator;
+    private Animator animator;
 
     // BattleMenu
     public GameObject battleMenu;
@@ -21,8 +20,8 @@ public class LuigiAnimEvents : MonoBehaviour
     public Button defendButton;
     public Button itemButton;
     // Anim Controllers
-    public RuntimeAnimatorController platformingController;
-    public RuntimeAnimatorController battleController;
+    //public RuntimeAnimatorController platformingController;
+    //public RuntimeAnimatorController battleController;
     // Targets
     public Transform playerSpawnPoint;
     public Transform enemySpawnPoint;
@@ -52,7 +51,7 @@ public class LuigiAnimEvents : MonoBehaviour
         Application.targetFrameRate = 60;
         SetupControllerState();
 
-        if (ctrlState == ControlState.BATTLE)
+        if (animator.GetInteger("intCntrlState") == 1)
         {
             InitializePrivates();
             GetBattleMenu();
@@ -89,7 +88,7 @@ public class LuigiAnimEvents : MonoBehaviour
 
     void FixedUpdate()
     {
-		if (ctrlState == ControlState.BATTLE)
+		if (animator.GetInteger("intCntrlState") == 1)
 		{
 			//+----------------------------------------------------------------------------+
 			//|                                     JUMP                                   |
@@ -185,7 +184,7 @@ public class LuigiAnimEvents : MonoBehaviour
 
     void Update()
     {
-		if (ctrlState == ControlState.BATTLE)
+		if (animator.GetInteger("intCntrlState") == 1)
 		{
 			//+----------------------------------------------------------------------------+
 			//|                               PHYSICAL ATTACK                              |
@@ -376,17 +375,18 @@ public class LuigiAnimEvents : MonoBehaviour
 
     void SetupControllerState()
     {
+        animator = GetComponent<Animator>();
         if (SceneManager.GetActiveScene().buildIndex == 1)
         {
-            ctrlState = ControlState.PLATFORMING;
-            this.GetComponent<Animator>().runtimeAnimatorController = platformingController as RuntimeAnimatorController;
+            animator.SetInteger("intCntrlState", 0); // Platforming state
+            //this.GetComponent<Animator>().runtimeAnimatorController = platformingController as RuntimeAnimatorController;
             this.GetComponent<CharacterController>().enabled = true;
             this.GetComponent<PlayerMovement>().enabled = true;
         }
         else if (SceneManager.GetActiveScene().buildIndex == 2)
         {
-            ctrlState = ControlState.BATTLE;
-            this.GetComponent<Animator>().runtimeAnimatorController = battleController as RuntimeAnimatorController;
+            animator.SetInteger("intCntrlState", 1); // Battle state
+            //this.GetComponent<Animator>().runtimeAnimatorController = battleController as RuntimeAnimatorController;
             this.GetComponent<CharacterController>().enabled = false;
             this.GetComponent<PlayerMovement>().enabled = false;
             // initialize targets:
@@ -401,7 +401,7 @@ public class LuigiAnimEvents : MonoBehaviour
                 else Debug.LogError("ERROR: Unrecognized target name. Check spelling.");
             }
         }
-        animator = GetComponent<Animator>();
+        //animator = GetComponent<Animator>();
     }
 
     void GetBattleMenu()

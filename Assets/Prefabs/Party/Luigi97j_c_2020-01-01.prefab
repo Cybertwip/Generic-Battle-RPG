@@ -263,6 +263,7 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1768,8 +1769,8 @@ Animator:
   m_GameObject: {fileID: 8326184623609939726}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 32f619d6a150e7f4784133e3e3242b14, type: 3}
-  m_Controller: {fileID: 9100000, guid: ce228d539096a7948bd86fff08500b74, type: 2}
-  m_CullingMode: 2
+  m_Controller: {fileID: 9100000, guid: 17fd992d9106edb42ad39477c97ade8f, type: 2}
+  m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -1877,22 +1878,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6768c2296640f34da3ca774480d1d58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ctrlState: 0
   battleMenu: {fileID: 0}
   jumpButton: {fileID: 0}
   fireballButton: {fileID: 0}
   attackButton: {fileID: 0}
   defendButton: {fileID: 0}
   itemButton: {fileID: 0}
-  platformingController: {fileID: 9100000, guid: 17fd992d9106edb42ad39477c97ade8f,
-    type: 2}
-  battleController: {fileID: 9100000, guid: ce228d539096a7948bd86fff08500b74, type: 2}
   playerSpawnPoint: {fileID: 0}
   enemySpawnPoint: {fileID: 0}
   meleeTargets: []
   rangedTargets: []
   jumpTargets: []
-  signal: {fileID: 8790832369522738438, guid: 6bae89c838e84874ea6595cbf19fcf27, type: 3}
 --- !u!1 &8684861548675657571
 GameObject:
   m_ObjectHideFlags: 0
