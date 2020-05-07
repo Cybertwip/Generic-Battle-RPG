@@ -761,6 +761,7 @@
  <Reference Include="Boo.Lang">
  <HintPath>./EditorLibs/MonoBleedingEdge/lib/mono/unityscript/Boo.Lang.dll</HintPath>
  </Reference>
+ <Compile Include="Assets\Scripts\IPartyMemberBattleActions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using AssemblyCSharp.Assets.Scripts;
 //using UnityEditor.Animations;
 
 //public enum ControlState { PLATFORMING, BATTLE }
 
-public class LuigiAnimEvents : MonoBehaviour
+public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 {
     private Animator animator;
 
@@ -46,6 +47,10 @@ public class LuigiAnimEvents : MonoBehaviour
     bool mjaDownB;
     bool mjaJumpBack;
 
+    private BattleManager battleManager;
+
+    public BattleStatus BattleStatus { get; set; }
+
     void Start()
     {
         Application.targetFrameRate = 60;
@@ -55,13 +60,14 @@ public class LuigiAnimEvents : MonoBehaviour
         {
             InitializePrivates();
             GetBattleMenu();
+            GetBattleManager();
             if (battleMenu != null) GetButtons();
             else Debug.LogError("ERROR: LuigiAnimEvents::battleMenu is empty. No buttons, no battle menu.");
 
             // Add listeners to buttons:
-            attackButton.onClick.AddListener(call: delegate { PhysicalAttack(); });
-            jumpButton.onClick.AddListener(call: delegate { Jump(); });
-            defendButton.onClick.AddListener(call: delegate { Defend(); });
+            attackButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Melee); });
+            jumpButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Special); });
+            defendButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Defend); });
 
         }
     }
@@ -140,6 +146,7 @@ public class LuigiAnimEvents : MonoBehaviour
 						transform.position = playerSpawnPoint.position; // to ensure alignment
 						lerpTime = 0f;
 						mjaJumpBack = false;
+                        BattleStatus = BattleStatus.Done;
 					}
 				}
 			}
@@ -159,13 +166,25 @@ public class LuigiAnimEvents : MonoBehaviour
 
 			if (animator.GetCurrentAnimatorStateInfo(0).IsName("Run_Back_Home")) //yes, I want him to run backwards, its funny
 			{
-				LerpOverTime(target.position, playerSpawnPoint.position, 0.5f);
-				if (lerpTime >= 0.5f)
-				{
-					animator.SetBool("boolRunBackHome", false);
-					lerpTime = 0f;
-				}
-			}
+                if(BattleStatus == BattleStatus.Performing)
+                {
+                    animator.SetBool("boolRunBackHome", true);
+
+                    if (animator.GetBool("boolRunBackHome") == true)
+                    {
+                        LerpOverTime(target.position, playerSpawnPoint.position, 0.5f);
+                        if (lerpTime >= 0.5f)
+                        {
+                            animator.SetBool("boolRunBackHome", false);
+                            lerpTime = 0f;
+                            BattleStatus = BattleStatus.Done;
+                        }
+
+                    }
+
+                }
+
+            }
 
 			// reset flags when action sequence is over
 			if ((failedTimedHit == true || doTimedHit == true) && animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
@@ -336,12 +355,28 @@ public class LuigiAnimEvents : MonoBehaviour
     }
 
     //+------------------------------------------------------------------------------+
+    //|                          Turn based actions                                  |
+    //+------------------------------------------------------------------------------+
+
+
+
+    public UnityEngine.Events.UnityAction RegisterWithBattleManager(PlayerAction action)
+    {
+
+        battleManager.SubmitTurn(this, action);
+        return null;
+    }
+
+
+    //+------------------------------------------------------------------------------+
     //|                          BUTTON EVENTS / "ACTIONS"                           |
     //+------------------------------------------------------------------------------+
 
     // JUMP ATTACK
-    public UnityEngine.Events.UnityAction Jump()
+    public UnityEngine.Events.UnityAction Special()
     {
+        BattleStatus = BattleStatus.Performing;
+
         battleMenu.SetActive(false);
         if (jumpTargets.Count == 1) target = jumpTargets[0];
         else target.position = Vector3.zero;
@@ -351,8 +386,10 @@ public class LuigiAnimEvents : MonoBehaviour
     }
 
     // PHYSICAL ATTACK
-    public UnityEngine.Events.UnityAction PhysicalAttack()
+    public UnityEngine.Events.UnityAction Melee()
     {
+        BattleStatus = BattleStatus.Performing;
+
         battleMenu.SetActive(false);
         if (meleeTargets.Count == 1) target = meleeTargets[0];
         else target.position = Vector3.zero;
@@ -420,6 +457,24 @@ public class LuigiAnimEvents : MonoBehaviour
         }
 
         Debug.LogError("ERROR: BattleMenu not found!");
+    }
+
+    void GetBattleManager()
+    {
+        GameObject[] taggedItems = GameObject.FindGameObjectsWithTag("BattleManager");
+        if (taggedItems.Length != 0)
+        {
+            foreach (GameObject obj in taggedItems)
+            {
+                if (obj.name == "BattleManager")
+                {
+                    battleManager = obj.GetComponent<BattleManager>();
+                    return;
+                }
+            }
+        }
+
+        Debug.LogError("ERROR: BattleManager not found!");
     }
 
     void GetButtons()

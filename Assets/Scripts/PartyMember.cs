@@ -13,4 +13,6 @@ public class PartyMember : MonoBehaviour
     public int maxFP;
     public int currentHP;
     public int currentFP;
+
+
 }

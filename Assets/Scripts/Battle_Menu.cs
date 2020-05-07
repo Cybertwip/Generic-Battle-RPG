@@ -33,6 +33,11 @@ public class Battle_Menu : MonoBehaviour
 
     public void Awake()
     {
+        Setup(); // must query buttons for each character
+    }
+
+    public void Setup()
+    {
 
         float multiplier = Mathf.Pow(resolution * scaleFactor,-1);
         float buttonHeight = buttonTemplate.GetComponent<RectTransform>().sizeDelta.y;

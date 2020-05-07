@@ -3,11 +3,56 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
+using AssemblyCSharp.Assets.Scripts;
+using System.Linq;
 
+public enum PlayerAction { Melee, Special, Item, Defend } //@TODO move to self contained enum class
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
 
 public class BattleManager : MonoBehaviour
 {
+    private const int PARTY_MEMBERS_SIZE = 1;
+
+    private Dictionary<IPartyMemberBattleActions, PlayerAction> TurnKeyMap = new Dictionary<IPartyMemberBattleActions, PlayerAction>();
+    private List<IPartyMemberBattleActions> TurnList = new List<IPartyMemberBattleActions>();
+
+
+    IPartyMemberBattleActions currentPerformingCharacter;
+
+    public void SubmitTurn(IPartyMemberBattleActions member, PlayerAction action)
+    {
+        TurnKeyMap[member] = action;
+        TurnList.Add(member);
+    }
+
+    public void PerformTurn()
+    {
+        var lastCharacter = TurnList.Last();
+        switch (TurnKeyMap[lastCharacter])
+        {
+            case PlayerAction.Defend:
+                lastCharacter.Defend();
+                break;
+
+            case PlayerAction.Item:
+                //lastCharacter.Item();
+                break;
+
+            case PlayerAction.Melee:
+                lastCharacter.Melee();
+                break;
+
+
+            case PlayerAction.Special:
+                lastCharacter.Special();
+                break;
+        }
+
+        currentPerformingCharacter = lastCharacter;
+
+        TurnList.Remove(currentPerformingCharacter);
+    }
+
     // BattleMenu
     public GameObject battleMenu;
     public List<Button> magicButtons;
@@ -84,9 +129,29 @@ public class BattleManager : MonoBehaviour
         PlayerTurn();
     }
 
+    void InitBattleStatuses()
+    {
+        var playerGO = playerParams.gameObject;
+
+        // battle states
+        //@TODO do this for each party member, also move LuigiAnimEvents to
+        // own player's PartyMember inherited script
+        var playerBattleState = playerGO.GetComponent<LuigiAnimEvents>() as IPartyMemberBattleActions;
+
+        playerBattleState.BattleStatus = BattleStatus.Idle;
+        currentPerformingCharacter = null;
+
+    }
+
     void PlayerTurn()
     {
+        InitBattleStatuses();
+
         battleMenu.SetActive(true);
+
+        TurnKeyMap.Clear();
+        TurnList.Clear();
+
         // player chooses an action from a button
         //
     }
@@ -94,8 +159,43 @@ public class BattleManager : MonoBehaviour
     void EnemyTurn()
     {
         battleMenu.SetActive(false);
+        PlayerTurn();
     }
 
     public void SetHudHP() => pm0currentHP.text = playerParams.currentHP.ToString();
+
+    private void Update()
+    {
+        switch (state)
+        {
+            case BattleState.PLAYERTURN:
+                if(TurnList.Count == PARTY_MEMBERS_SIZE)
+                {
+                    PerformTurn();
+                }
+                else if(TurnList.Count > 0)
+                {
+                    if(currentPerformingCharacter.BattleStatus == BattleStatus.Done)
+                    {
+                        PerformTurn();
+                    }
+                }
+                else
+                {
+                    if(currentPerformingCharacter != null)
+                    {
+                        if (currentPerformingCharacter.BattleStatus == BattleStatus.Done)
+                        {
+                            Debug.Log("Player turn is over");
+                            // player turn's is over
+                            currentPerformingCharacter = null;
+                            EnemyTurn();
+                        }
+
+                    }
+                }
+                break;
+        }
+    }
 }
 
