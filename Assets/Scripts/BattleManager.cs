@@ -6,7 +6,7 @@ using TMPro;
 using AssemblyCSharp.Assets.Scripts;
 using System.Linq;
 
-public enum PlayerAction { Melee, Special, Item, Defend } //@TODO move to self contained enum class
+public enum PlayerAction { Melee, Special, Item, Defend, None } //@TODO move to self contained enum class
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
 
 public class BattleManager : MonoBehaviour

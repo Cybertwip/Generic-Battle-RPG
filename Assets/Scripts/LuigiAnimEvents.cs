@@ -50,6 +50,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
     private BattleManager battleManager;
 
+    public PlayerAction PlayerAction { get; set; }
     public BattleStatus BattleStatus { get; set; }
 
     private bool performingItem = false;
@@ -156,6 +157,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 						lerpTime = 0f;
 						mjaJumpBack = false;
                         BattleStatus = BattleStatus.Done;
+                        PlayerAction = PlayerAction.None;
 					}
 				}
 			}
@@ -187,6 +189,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                             animator.SetBool("boolRunBackHome", false);
                             lerpTime = 0f;
                             BattleStatus = BattleStatus.Done;
+                            PlayerAction = PlayerAction.None;
                         }
 
                     }
@@ -284,15 +287,27 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
                     }
                 }
-                else if (t >= 300f / 215f)
+            }
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                switch (PlayerAction)
                 {
-                    BattleStatus = BattleStatus.Done;
-                    performingItem = false;
-                    currentPerformingItem = "";
+                        case PlayerAction.Item:
+                        {
+                            if (t > 2f && performingItem)
+                            {
+                                BattleStatus = BattleStatus.Done;
+                                PlayerAction = PlayerAction.None;
+                                performingItem = false;
+                                currentPerformingItem = "";
+                            }
+                        }
+                        break;
+
                 }
-
-
-
+                
             }
 
             //else if (signal.activeInHierarchy == true) signal.SetActive(false); // in case we are already out of punch animation	
@@ -445,6 +460,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public UnityEngine.Events.UnityAction Special()
     {
         BattleStatus = BattleStatus.Performing;
+        PlayerAction = PlayerAction.Special;
 
         battleMenu.SetActive(false);
         if (jumpTargets.Count == 1) target = jumpTargets[0];
@@ -458,6 +474,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public UnityEngine.Events.UnityAction Melee()
     {
         BattleStatus = BattleStatus.Performing;
+        PlayerAction = PlayerAction.Melee;
 
         battleMenu.SetActive(false);
         if (meleeTargets.Count == 1) target = meleeTargets[0];
@@ -470,6 +487,8 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     // DEFEND
     public UnityEngine.Events.UnityAction Defend()
     {
+        PlayerAction = PlayerAction.Defend;
+
         battleMenu.SetActive(false);
         AnimTrigger("triggerDefend");
         return null;
@@ -479,6 +498,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public UnityEngine.Events.UnityAction Item(string name)
     {
         BattleStatus = BattleStatus.Performing;
+        PlayerAction = PlayerAction.Item;
 
         currentPerformingItem = name;
         performingItem = false;
