@@ -2,17 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class Inventory : MonoBehaviour
 {
+    public class InventoryItem
+    {
+        public string Name { get; set; }
+        public string Type { get; set; }
+        //public string Path { get; set; }
+        public string GetPath { get; set; }
+        public string IconPath { get; set; }
+    }
+
     private static Inventory instance = null; // static (class level) variable
     public static Inventory Instance { get { return instance; } } // static getter (only accessing allowed)
 
-    [SerializeField]
-    private GameObject[] items = new GameObject[3];
+    public List<InventoryItem> Items = new List<InventoryItem>();
 
-    public List<GameObject> itemList;
-    public List<GameObject> magicList;
-    public List<GameObject> weaponList;
+    public List<GameObject> itemList = new List<GameObject>();
+    public List<GameObject> magicList = new List<GameObject>();
+    public List<GameObject> weaponList = new List<GameObject>();
     //public List<GameObject> armorList;
     //public List<GameObject> accessoryList;
 
@@ -27,6 +37,31 @@ public class Inventory : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+
+            Items.Add(new InventoryItem()
+            {
+                Name = "Mushroom",
+                Type = "support",
+                GetPath = "Items/Prefabs/get_mushroom",
+                IconPath = "Items/Prefabs/icon_mushroom"
+            });
+
+            Items.Add(new InventoryItem()
+            {
+                Name = "Power Star",
+                Type = "support",
+                GetPath = "Items/Prefabs/get_powerStar",
+                IconPath = "Items/Prefabs/icon_powerStar"
+            });
+
+            Items.Add(new InventoryItem()
+            {
+                Name = "Chocolate Mousse",
+                Type = "offensive",
+                GetPath = "Items/Prefabs/get_turd",
+                IconPath = "Items/Prefabs/icon_turd"
+            });
+
         }
 
         else

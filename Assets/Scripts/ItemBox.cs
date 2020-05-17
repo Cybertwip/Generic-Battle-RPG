@@ -25,9 +25,22 @@ public class ItemBox : MonoBehaviour
         {
             anim.Play("ItemBoxGetItemState");
             int randInt = Random.Range(0, 3);
-            GameObject itemObj = Instantiate(items[randInt].GetComponent<Item>().getPrefab,
-                transform.position + new Vector3(0, 0.375f, 0), Camera.main.transform.rotation);
+            randInt = 1;
+            var inventory = Inventory.Instance;
+
+            var randomItem = inventory.Items[randInt].GetPath;
+
+            GameObject prefab = Resources.Load(randomItem) as GameObject;
+           
+            GameObject itemObj =
+                Instantiate(prefab,
+                            transform.position + new Vector3(0, 0.375f, 0),
+                            Camera.main.transform.rotation);
+
             GameObject newObj = Instantiate(items[randInt]);
+            /*GameObject itemObj = Instantiate(items[randInt].GetComponent<Item>().getPrefab,
+                transform.position + new Vector3(0, 0.375f, 0), Camera.main.transform.rotation);
+            GameObject newObj = Instantiate(items[randInt]);*/
             gm.GetComponent<Inventory>().itemList.Add(newObj);//AddItem(newObj);
             newObj.transform.SetParent(gm.transform.GetChild(0));
             Destroy(itemObj, 1.6f);

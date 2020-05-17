@@ -14,7 +14,6 @@ public class Item : MonoBehaviour
     public Sprite avatar;
     public GameObject iconPrefab;
     public GameObject getPrefab; // prefab associated with "ItemGet" animation
-
     // dHP, dFP, dStrength, dDefense, dMagicAttack, dMagicDefense
     // public int[] attributes = new int[6];
 

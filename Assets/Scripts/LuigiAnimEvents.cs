@@ -52,6 +52,9 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
     public BattleStatus BattleStatus { get; set; }
 
+    private bool performingItem = false;
+    private string currentPerformingItem = "";
+
     void Start()
     {
         Application.targetFrameRate = 60;
@@ -242,29 +245,54 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ConsumeItem"))
             {
                 float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                // handle player's timed hit input (if there is any)
 
-                // prevents player from succeeding by spamming buttons:
-                if (t < 155f / 215f)
+                if (t >= 155f / 215f)
                 {
+                    if (!performingItem)
+                    {
 
+                        performingItem = true;
+
+                        var inventory = Inventory.Instance;
+
+                        var item = inventory.Items.Where(i => i.Name == currentPerformingItem).First().GetPath;
+
+                        GameObject prefab = Resources.Load(item) as GameObject;
+
+                        GameObject newObj =
+                            Instantiate(prefab,
+                                        playerSpawnPoint.position + new Vector3(0, 2.75f, 0.5f),
+                                        Camera.main.transform.rotation);
+
+                        GameObject toRemove = null;
+
+                        foreach(var listItem in inventory.itemList)
+                        {
+                            var itemComponent = listItem.GetComponent<Item>();
+                            if (itemComponent.itemName == item)
+                            {
+                                toRemove = listItem;
+                                break;
+                            }
+                        }
+
+                        inventory.itemList.Remove(toRemove);
+
+                        newObj.transform.SetParent(playerSpawnPoint);
+
+                        Destroy(newObj, 1.6f);
+
+                    }
+                }
+                else if (t >= 300f / 215f)
+                {
+                    BattleStatus = BattleStatus.Done;
+                    performingItem = false;
+                    currentPerformingItem = "";
                 }
 
-                if ((t >= 29f / 83f && t < 57f / 83f) && Input.GetButtonDown("Jump") && failedTimedHit == false)
-                {
-                    Debug.Log("triggerTimedHit");
-                    doTimedHit = true;
-                }
 
-                if (doTimedHit == true)
-                {
-                    animator.SetBool("boolTimedHit", true);
-                    doTimedHit = false;
-                }
 
-                // deal with timed-hit signal: (all signal debug lines work)
-                //if (t >= 29f / 83f && t < 57f / 83f && signal.activeInHierarchy == false) signal.SetActive(true);
-                //if (t >= 57f / 83f && signal.activeInHierarchy == true) signal.SetActive(false);
             }
 
             //else if (signal.activeInHierarchy == true) signal.SetActive(false); // in case we are already out of punch animation	
@@ -450,6 +478,11 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     // ITEM
     public UnityEngine.Events.UnityAction Item(string name)
     {
+        BattleStatus = BattleStatus.Performing;
+
+        currentPerformingItem = name;
+        performingItem = false;
+
         battleMenu.SetActive(false);
         AnimTrigger("triggerConsume");
         return null;
