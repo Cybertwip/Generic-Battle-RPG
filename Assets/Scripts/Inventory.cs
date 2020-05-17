@@ -7,6 +7,9 @@ public class Inventory : MonoBehaviour
     private static Inventory instance = null; // static (class level) variable
     public static Inventory Instance { get { return instance; } } // static getter (only accessing allowed)
 
+    [SerializeField]
+    private GameObject[] items = new GameObject[3];
+
     public List<GameObject> itemList;
     public List<GameObject> magicList;
     public List<GameObject> weaponList;

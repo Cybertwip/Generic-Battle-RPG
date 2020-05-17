@@ -16,6 +16,7 @@ public class BattleManager : MonoBehaviour
     private Dictionary<IPartyMemberBattleActions, PlayerAction> TurnKeyMap = new Dictionary<IPartyMemberBattleActions, PlayerAction>();
     private List<IPartyMemberBattleActions> TurnList = new List<IPartyMemberBattleActions>();
 
+    private List<string> TurnItemList = new List<string>();
 
     IPartyMemberBattleActions currentPerformingCharacter;
 
@@ -25,9 +26,21 @@ public class BattleManager : MonoBehaviour
         TurnList.Add(member);
     }
 
+    public void SubmitTurn(IPartyMemberBattleActions member, PlayerAction action, string parameter)
+    {
+        TurnKeyMap[member] = action;
+        TurnList.Add(member);
+
+        switch (action)
+        {
+            case PlayerAction.Item:
+                TurnItemList.Add(parameter);
+                break;
+        }
+    }
     public void PerformTurn()
     {
-        var lastCharacter = TurnList.Last();
+        var lastCharacter = TurnList.First();
         switch (TurnKeyMap[lastCharacter])
         {
             case PlayerAction.Defend:
@@ -35,7 +48,10 @@ public class BattleManager : MonoBehaviour
                 break;
 
             case PlayerAction.Item:
-                //lastCharacter.Item();
+
+                lastCharacter.Item(TurnItemList.First());
+                TurnItemList.RemoveAt(0);
+
                 break;
 
             case PlayerAction.Melee:

@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using AssemblyCSharp.Assets.Scripts;
+using System.Linq;
 //using UnityEditor.Animations;
 
 //public enum ControlState { PLATFORMING, BATTLE }
@@ -19,7 +20,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public Button fireballButton;
     public Button attackButton;
     public Button defendButton;
-    public Button itemButton;
+    public List<Button> itemButtons = new List<Button>();
     // Anim Controllers
     //public RuntimeAnimatorController platformingController;
     //public RuntimeAnimatorController battleController;
@@ -69,6 +70,11 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             jumpButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Special); });
             defendButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Defend); });
 
+            foreach(var button in itemButtons)
+            {
+                button.onClick.AddListener(call: delegate { RegisterItemWithBattleManager(button.GetComponentInChildren<TMP_Text>().text); });
+
+            }
         }
     }
 
@@ -233,9 +239,36 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 				//if (t >= 29f / 83f && t < 57f / 83f && signal.activeInHierarchy == false) signal.SetActive(true);
 				//if (t >= 57f / 83f && signal.activeInHierarchy == true) signal.SetActive(false);
 			}
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ConsumeItem"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                // handle player's timed hit input (if there is any)
 
-			//else if (signal.activeInHierarchy == true) signal.SetActive(false); // in case we are already out of punch animation	
-		}
+                // prevents player from succeeding by spamming buttons:
+                if (t < 155f / 215f)
+                {
+
+                }
+
+                if ((t >= 29f / 83f && t < 57f / 83f) && Input.GetButtonDown("Jump") && failedTimedHit == false)
+                {
+                    Debug.Log("triggerTimedHit");
+                    doTimedHit = true;
+                }
+
+                if (doTimedHit == true)
+                {
+                    animator.SetBool("boolTimedHit", true);
+                    doTimedHit = false;
+                }
+
+                // deal with timed-hit signal: (all signal debug lines work)
+                //if (t >= 29f / 83f && t < 57f / 83f && signal.activeInHierarchy == false) signal.SetActive(true);
+                //if (t >= 57f / 83f && signal.activeInHierarchy == true) signal.SetActive(false);
+            }
+
+            //else if (signal.activeInHierarchy == true) signal.SetActive(false); // in case we are already out of punch animation	
+        }
     }
 
     //+----------------------------------------------------------------------------+
@@ -367,6 +400,14 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         return null;
     }
 
+    public UnityEngine.Events.UnityAction RegisterItemWithBattleManager(string itemName, string itemType = "")
+    {
+
+        battleManager.SubmitTurn(this, PlayerAction.Item, itemName);
+        return null;
+    }
+
+
 
     //+------------------------------------------------------------------------------+
     //|                          BUTTON EVENTS / "ACTIONS"                           |
@@ -405,6 +446,15 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         AnimTrigger("triggerDefend");
         return null;
     }
+
+    // ITEM
+    public UnityEngine.Events.UnityAction Item(string name)
+    {
+        battleMenu.SetActive(false);
+        AnimTrigger("triggerConsume");
+        return null;
+    }
+
 
     //+------------------------------------------------------------------------------+
     //|                                    SETUP                                     |
@@ -486,10 +536,21 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         // handle itemButton
         if (battleMenu.transform.GetChild(3).GetChild(2).GetChild(0).childCount == 0)
         {
-            itemButton = null; //takes care of case where there are no items
         }
         else
-            battleMenu.transform.GetChild(3).GetChild(2).GetChild(0).GetChild(0).GetComponent<Button>();
+        {
+            var transform = battleMenu.transform.GetChild(3).GetChild(2).GetChild(0).transform;
+            List<Transform> children = transform.Cast<Transform>().ToList();
+
+            foreach(var child in children)
+            {
+                var button = child.GetComponent<Button>();
+                itemButtons.Add(button); 
+
+            }
+
+        }
+
     }
 
     // debug only
@@ -499,7 +560,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         Debug.Log(fireballButton.GetComponentInChildren<TMP_Text>().text);
         Debug.Log(attackButton.GetComponentInChildren<TMP_Text>().text);
         Debug.Log(defendButton.GetComponentInChildren<TMP_Text>().text);
-        if (itemButton != null) Debug.Log(itemButton.GetComponentInChildren<TMP_Text>().text);
+        if (itemButtons.Count == 0) Debug.Log("Item button");
         else Debug.LogError("ERROR: LuigiAnimationEvents::itemButton = null. No item means no item button.");
     }
 
