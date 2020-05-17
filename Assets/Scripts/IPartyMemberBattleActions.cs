@@ -12,5 +12,9 @@ namespace AssemblyCSharp.Assets.Scripts
         UnityEngine.Events.UnityAction Defend();
         UnityEngine.Events.UnityAction Item(string name);
 
+        UnityEngine.Events.UnityAction OnBattleLoopEnd();
+
+        //void TakeDamage(int totalDamage);
+
     }
 }

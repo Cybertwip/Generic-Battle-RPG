@@ -16,6 +16,8 @@ public class BattleManager : MonoBehaviour
     private Dictionary<IPartyMemberBattleActions, PlayerAction> TurnKeyMap = new Dictionary<IPartyMemberBattleActions, PlayerAction>();
     private List<IPartyMemberBattleActions> TurnList = new List<IPartyMemberBattleActions>();
 
+    private List<IPartyMemberBattleActions> FinishedTurnList = new List<IPartyMemberBattleActions>();
+
     private List<string> TurnItemList = new List<string>();
 
     IPartyMemberBattleActions currentPerformingCharacter;
@@ -67,6 +69,7 @@ public class BattleManager : MonoBehaviour
         currentPerformingCharacter = lastCharacter;
 
         TurnList.Remove(currentPerformingCharacter);
+        FinishedTurnList.Add(currentPerformingCharacter);
     }
 
     // BattleMenu
@@ -167,14 +170,19 @@ public class BattleManager : MonoBehaviour
 
         TurnKeyMap.Clear();
         TurnList.Clear();
-
-        // player chooses an action from a button
-        //
     }
 
     void EnemyTurn()
     {
         battleMenu.SetActive(false);
+
+        foreach(var partyMember in FinishedTurnList)
+        {
+            partyMember.OnBattleLoopEnd();
+        }
+
+        FinishedTurnList.Clear();
+
         PlayerTurn();
     }
 

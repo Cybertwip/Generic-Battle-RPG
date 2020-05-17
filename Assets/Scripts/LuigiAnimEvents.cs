@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using AssemblyCSharp.Assets.Scripts;
 using System.Linq;
+using System;
 //using UnityEditor.Animations;
 
 //public enum ControlState { PLATFORMING, BATTLE }
@@ -205,11 +206,15 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 				doTimedHit = false;
 			}
 
+            /*
 			if (animator.GetCurrentAnimatorStateInfo(0).IsName("Defend"))
 			{
 				// DONT FORGET TO PUT THE EXIT ANIMATION IN LATER!
-				AnimationDefendStart();
-			}
+                if(BattleStatus  == BattleStatus.Performing)
+                {
+                    AnimationDefendStart();
+                }
+            }*/
 		}
     }
 
@@ -308,6 +313,15 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
                 }
                 
+            }
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Defend"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                if (t >= 30f / 30f)
+                {
+                    BattleStatus = BattleStatus.Done;
+                }
             }
 
             //else if (signal.activeInHierarchy == true) signal.SetActive(false); // in case we are already out of punch animation	
@@ -488,6 +502,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public UnityEngine.Events.UnityAction Defend()
     {
         PlayerAction = PlayerAction.Defend;
+        BattleStatus = BattleStatus.Performing;
 
         battleMenu.SetActive(false);
         AnimTrigger("triggerDefend");
@@ -508,7 +523,31 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         return null;
     }
 
+    public UnityEngine.Events.UnityAction OnBattleLoopEnd()
+    {
+        switch (PlayerAction)
+        {
+            case PlayerAction.Defend:
+                AnimTrigger("triggerDefendEnd");
 
+                /*
+                StartCoroutine(ExecuteAfterTime(2.0f, () =>
+                {
+                    PlayerAction = PlayerAction.None;
+                    AnimationDefendEnd();
+                }));*/
+                break;
+        }
+
+        return null;
+    }
+
+    /*
+    IEnumerator ExecuteAfterTime(float time, Action task)
+    {
+        yield return new WaitForSeconds(time);
+        task();
+    }*/
     //+------------------------------------------------------------------------------+
     //|                                    SETUP                                     |
     //+------------------------------------------------------------------------------+
