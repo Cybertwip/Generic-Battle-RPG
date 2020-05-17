@@ -24,8 +24,9 @@ public class ItemBox : MonoBehaviour
         if (!disabled && other.gameObject.tag == "Player")
         {
             anim.Play("ItemBoxGetItemState");
-            int randInt = Random.Range(0, 3);
-            randInt = 1;
+            var rnd = new System.Random();
+            int randInt = rnd.Next(0, 3);
+
             var inventory = Inventory.Instance;
 
             var randomItem = inventory.Items[randInt].GetPath;
