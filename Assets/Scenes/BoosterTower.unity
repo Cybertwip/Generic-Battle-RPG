@@ -2440,12 +2440,7 @@ PrefabInstance:
     - target: {fileID: 8326184623609939726, guid: 4266b82552cc23547aa269df571dac70,
         type: 3}
       propertyPath: m_Name
-      value: Luigi97j_c_2020-01-01
-      objectReference: {fileID: 0}
-    - target: {fileID: 8326184623609939726, guid: 4266b82552cc23547aa269df571dac70,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
+      value: Luigi
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4266b82552cc23547aa269df571dac70, type: 3}

@@ -1883,7 +1883,7 @@ MonoBehaviour:
   fireballButton: {fileID: 0}
   attackButton: {fileID: 0}
   defendButton: {fileID: 0}
-  itemButton: {fileID: 0}
+  itemButtons: []
   playerSpawnPoint: {fileID: 0}
   enemySpawnPoint: {fileID: 0}
   meleeTargets: []
