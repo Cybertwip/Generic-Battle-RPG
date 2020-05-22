@@ -6,7 +6,7 @@ using TMPro;
 using AssemblyCSharp.Assets.Scripts;
 using System.Linq;
 
-public enum PlayerAction { Melee, Special, Item, Defend, None } //@TODO move to self contained enum class
+public enum PlayerAction { Melee, Special, Fireball, Item, Defend, None } //@TODO move to self contained enum class //appended `Fireball` 05/21/2020 @ 23:36
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
 
 public class BattleManager : MonoBehaviour
@@ -63,6 +63,10 @@ public class BattleManager : MonoBehaviour
 
             case PlayerAction.Special:
                 lastCharacter.Special();
+                break;
+
+            case PlayerAction.Fireball:
+                lastCharacter.Fireball();
                 break;
         }
 

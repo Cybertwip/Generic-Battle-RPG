@@ -47,6 +47,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     bool mjaDownA;
     bool mjaUpB;
     bool mjaDownB;
+    bool mjaStandUp;
     bool mjaJumpBack;
 
     private BattleManager battleManager;
@@ -73,6 +74,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             // Add listeners to buttons:
             attackButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Melee); });
             jumpButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Special); });
+            fireballButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Fireball); }); //05/21/2020 @ 23:44
             defendButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Defend); });
 
             foreach(var button in itemButtons)
@@ -97,6 +99,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         timer = 0f;
         doTimedHit = false;
         failedTimedHit = false;
+        mjaStandUp = false;
         mjaJumpBack = false;
         luigiPrefab = GameObject.FindGameObjectWithTag("Player"); // there is only one party member right now
         //signal = GameObject.Instantiate(signal, new Vector3(-2f, 1.5f, 7f), Quaternion.identity);
@@ -110,7 +113,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 			//+----------------------------------------------------------------------------+
 			//|                                     JUMP                                   |
 			//+----------------------------------------------------------------------------+
-			if (animator.GetBool("sm_Magic_JumpAttack"))
+			if (animator.GetBool("sm_Magic_JumpAttack")) // note to self: this is a bool defined in the Editor using `SubStateMonitor.cs`. It is true as long as we are inside the substate machine. I learned a few months ago that you cannot "nest" substate machines, so don't try!
 			{
 				//01 jump straight up
 				if (mjaUpA == true)
@@ -129,30 +132,48 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 				if (mjaDownA == true)
 				{
 					LerpOverTime(target.position + Vector3.up * 10f, target.position, 0.5f);
-					// play falling sound
+					// (play falling sound)
 					if (lerpTime >= 0.366f) { AnimTrigger("MJA02"); }
 					if (lerpTime >= 0.5f)
 					{
 						lerpTime = 0f;
 						mjaDownA = false;
-						mjaUpB = true;
+						mjaUpB = true; // not used yet, only exists in two lines in this script, intention was for use with timed jumps
 						animator.SetBool("boolTimedHit", false); // TEMPORARY, puts us in sm_Jump_Finish
 					}
 				}
-				//03A jump straight up again
-				if (animator.GetBool("boolTimedHit") == true)
-				{
-					//jump straight up again, implementation DNE in state machine yet
-				}
+				//03 jump straight up again
+                if (mjaUpB == true)
+                {
+                    if (animator.GetBool("boolTimedHit") == true)
+                    {
+                        Debug.LogError("It's Spencer: We should not be here, this is not implemented yet!");
+                        //jump straight up again, implementation DNE in state machine yet
+                    }
+                    else
+                    {
+                        mjaUpB = false;
+                        mjaStandUp = true;
+                    }
+                }
 
-				if (animator.GetCurrentAnimatorStateInfo(0).IsName("Jump_Start_Finish") && mjaJumpBack == false) mjaJumpBack = true;
+                if (mjaStandUp == true)
+                {
+                    if (lerpTime < 12f / 30f) lerpTime += Time.deltaTime; // duration of Luigi's "Jump_start" animation
+                    else
+                    {
+                        mjaStandUp = false;
+                        mjaJumpBack = true;
+                        lerpTime = 0f;
+                    }
+                }
 
-				if (mjaJumpBack == true && lerpTime <= 24f / 60f)
+                if (mjaJumpBack == true && lerpTime <= 24f / 60f)
 				{
 					//LerpOverTime(target.position, playerSpawnPoint.position, 24f / 60f);
 					transform.position = ParabolicTrajectory(target.position, playerSpawnPoint.position, target.position.y, 24f / 60f);
 					lerpTime += Time.deltaTime;
-					if (lerpTime >= 24f / 60f)
+					if (lerpTime > 24f / 60f)
 					{
 						transform.position = playerSpawnPoint.position; // to ensure alignment
 						lerpTime = 0f;
@@ -163,10 +184,25 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 				}
 			}
 
-			//+----------------------------------------------------------------------------+
-			//|                                     LERP                                   |
-			//+----------------------------------------------------------------------------+
-			if (animator.GetBool("boolRunToTarget") == true)
+            //+----------------------------------------------------------------------------+
+            //|                                   FIREBALL                                 |
+            //+----------------------------------------------------------------------------+
+
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Magic"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                if (t >= 0.95f) // this is skipping a lot when t >= 0.99, etc.
+                {
+                    BattleStatus = BattleStatus.Done;
+                    PlayerAction = PlayerAction.None;
+                }
+                //do stuff
+            }
+
+            //+----------------------------------------------------------------------------+
+            //|                                     LERP                                   |
+            //+----------------------------------------------------------------------------+
+            if (animator.GetBool("boolRunToTarget") == true)
 			{
 				LerpOverTime(playerSpawnPoint.position, target.position, 0.5f);
 				if (lerpTime >= 0.5f)
@@ -250,6 +286,10 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 				//if (t >= 29f / 83f && t < 57f / 83f && signal.activeInHierarchy == false) signal.SetActive(true);
 				//if (t >= 57f / 83f && signal.activeInHierarchy == true) signal.SetActive(false);
 			}
+
+            //+----------------------------------------------------------------------------+
+            //|                                CONSUME ITEM                                |
+            //+----------------------------------------------------------------------------+
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ConsumeItem"))
             {
                 float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
@@ -258,7 +298,6 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                 {
                     if (!performingItem)
                     {
-
                         performingItem = true;
 
                         var inventory = Inventory.Instance;
@@ -293,6 +332,10 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                     }
                 }
             }
+
+            //+----------------------------------------------------------------------------+
+            //|                                 BATTLE IDLE                                |
+            //+----------------------------------------------------------------------------+
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
             {
                 float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
@@ -314,11 +357,14 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                 }
                 
             }
+            //+----------------------------------------------------------------------------+
+            //|                                   DEFEND                                   |
+            //+----------------------------------------------------------------------------+
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Defend"))
             {
                 float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
 
-                if (t >= 30f / 30f)
+                if (t >= 1f) //(t >= 30f / 30f) changed 05/21/2020 @ 21:58
                 {
                     BattleStatus = BattleStatus.Done;
                 }
@@ -477,10 +523,25 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         PlayerAction = PlayerAction.Special;
 
         battleMenu.SetActive(false);
-        if (jumpTargets.Count == 1) target = jumpTargets[0];
-        else target.position = Vector3.zero;
+        if (jumpTargets.Count == 1) target = jumpTargets[0]; // temporary, no selection function yet, just one enemy
+        else target.position = Vector3.zero; // weird placement... 05/20/2020 @23:54
         AnimTrigger("triggerJump");
         mjaUpA = true;
+        return null;
+    }
+
+    public UnityEngine.Events.UnityAction Fireball()
+    {
+        BattleStatus = BattleStatus.Performing;
+        PlayerAction = PlayerAction.Fireball;
+
+        battleMenu.SetActive(false);
+        if (rangedTargets.Count != 0)
+        {
+            target = rangedTargets[0]; // temporary, no selection function yet, just one enemy
+            AnimTrigger("triggerMagic"); // all of Luigi's Magic attacks use the same "windup" animation //05/21/2020 @23:59
+        }
+        else { Debug.LogError("Hey, it's Spencer...there is supposed to be a rangedTarget on the enemy, but there isn't. Make one in the prefab and call it \"rangedTarget\"!"); }
         return null;
     }
 
