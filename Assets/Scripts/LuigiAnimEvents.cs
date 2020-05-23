@@ -254,6 +254,8 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                             lerpTime = 0f;
                             BattleStatus = BattleStatus.Done;
                             PlayerAction = PlayerAction.None;
+                            // reset timed-hit anim parameter (there is a bug in the melee action where timed-hit always succeeds if we don't):
+                            animator.SetBool("boolTimedHit", false);
                         }
 
                     }
