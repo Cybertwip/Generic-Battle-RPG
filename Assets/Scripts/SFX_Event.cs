@@ -18,6 +18,7 @@ public class SFX_Event : MonoBehaviour
 	{
 		currentClipInfo = anim.GetCurrentAnimatorClipInfo(0);
 		string ccName = currentClipInfo[0].clip.name;
+		Debug.Log(ccName);
 		switch (ccName)
 		{
 			case "Luigi_Jump_start_wSound":
@@ -35,7 +36,7 @@ public class SFX_Event : MonoBehaviour
 				PlaySFX();
 				break;
 			case ("Luigi_Battle_Punch_wSound"):
-				sfxClip = Resources.Load<AudioClip>("SFX/smrpg_mario_kick");
+				sfxClip = Resources.Load<AudioClip>("SFX/smrpg_mario_shell");
 				PlaySFX();
 				break;
 			case ("Luigi_Battle_PunchTimed_wSound"):

@@ -32,7 +32,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public List<Transform> rangedTargets;
     public List<Transform> jumpTargets;
     // party
-    private GameObject luigiPrefab;
+    //private GameObject luigiPrefab;
     // flags, targets, etc.
     //public GameObject signal; // make visible when timed hit is active, for debug purposes
     private bool doTimedHit;
@@ -104,12 +104,12 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         mjaStandUp = false;
         mjaJumpBack = false;
         fba01 = false;
-        luigiPrefab = GameObject.FindGameObjectWithTag("Player"); // there is only one party member right now
+        //luigiPrefab = GameObject.FindGameObjectWithTag("Player"); // there is only one party member right now
         //signal = GameObject.Instantiate(signal, new Vector3(-2f, 1.5f, 7f), Quaternion.identity);
         //signal.SetActive(false);
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (animator.GetInteger("intCntrlState") == 1)
         {
@@ -235,6 +235,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                 if (lerpTime >= 0.5f)
                 {
                     animator.SetBool("boolRunToTarget", false);
+                    if (PlayerAction.ToString() == "Melee") AnimTrigger("triggerFirstPunch");
                     lerpTime = 0f;
                 }
             }
@@ -280,13 +281,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                     AnimationDefendStart();
                 }
             }*/
-        }
-    }
-
-    void Update()
-    {
-        if (animator.GetInteger("intCntrlState") == 1)
-        {
+        
             //+----------------------------------------------------------------------------+
             //|                               PHYSICAL ATTACK                              |
             //+----------------------------------------------------------------------------+
@@ -302,14 +297,17 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                 if ((t >= 29f / 83f && t < 57f / 83f) && Input.GetButtonDown("Jump") && failedTimedHit == false)
                 {
                     Debug.Log("triggerTimedHit");
-                    doTimedHit = true;
+                    AnimTrigger("triggerTimedHit");
+                    //doTimedHit = true;
                 }
 
+                /*
                 if (doTimedHit == true)
                 {
                     animator.SetBool("boolTimedHit", true);
                     doTimedHit = false;
                 }
+                */
 
                 // deal with timed-hit signal: (all signal debug lines work)
                 //if (t >= 29f / 83f && t < 57f / 83f && signal.activeInHierarchy == false) signal.SetActive(true);
@@ -754,5 +752,6 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             if (p.type == AnimatorControllerParameterType.Trigger)
                 animator.ResetTrigger(p.name);
         animator.SetTrigger(triggerName);
+        Debug.Log("triggered " + triggerName);
     }
 }
