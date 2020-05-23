@@ -49,6 +49,8 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     bool mjaDownB;
     bool mjaStandUp;
     bool mjaJumpBack;
+    // fireball flags
+    bool fba01;
 
     private BattleManager battleManager;
 
@@ -77,7 +79,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             fireballButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Fireball); }); //05/21/2020 @ 23:44
             defendButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Defend); });
 
-            foreach(var button in itemButtons)
+            foreach (var button in itemButtons)
             {
                 button.onClick.AddListener(call: delegate { RegisterItemWithBattleManager(button.GetComponentInChildren<TMP_Text>().text); });
 
@@ -101,6 +103,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         failedTimedHit = false;
         mjaStandUp = false;
         mjaJumpBack = false;
+        fba01 = false;
         luigiPrefab = GameObject.FindGameObjectWithTag("Player"); // there is only one party member right now
         //signal = GameObject.Instantiate(signal, new Vector3(-2f, 1.5f, 7f), Quaternion.identity);
         //signal.SetActive(false);
@@ -108,41 +111,41 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
     void FixedUpdate()
     {
-		if (animator.GetInteger("intCntrlState") == 1)
-		{
-			//+----------------------------------------------------------------------------+
-			//|                                     JUMP                                   |
-			//+----------------------------------------------------------------------------+
-			if (animator.GetBool("sm_Magic_JumpAttack")) // note to self: this is a bool defined in the Editor using `SubStateMonitor.cs`. It is true as long as we are inside the substate machine. I learned a few months ago that you cannot "nest" substate machines, so don't try!
-			{
-				//01 jump straight up
-				if (mjaUpA == true)
-				{
-					LerpOverTime(playerSpawnPoint.position, playerSpawnPoint.position + Vector3.up * 10f, 0.5f);
-					if (lerpTime >= 0.5f) // move directly over target (in the plane)
-					{
-						lerpTime = 0f;
-						mjaUpA = false;
-						mjaDownA = true;
-						AnimTrigger("MJA01"); // turns this on, all other triggers off
-						transform.position = target.position + Vector3.up * 10f;
-					}
-				}
-				//02 land on target
-				if (mjaDownA == true)
-				{
-					LerpOverTime(target.position + Vector3.up * 10f, target.position, 0.5f);
-					// (play falling sound)
-					if (lerpTime >= 0.366f) { AnimTrigger("MJA02"); }
-					if (lerpTime >= 0.5f)
-					{
-						lerpTime = 0f;
-						mjaDownA = false;
-						mjaUpB = true; // not used yet, only exists in two lines in this script, intention was for use with timed jumps
-						animator.SetBool("boolTimedHit", false); // TEMPORARY, puts us in sm_Jump_Finish
-					}
-				}
-				//03 jump straight up again
+        if (animator.GetInteger("intCntrlState") == 1)
+        {
+            //+----------------------------------------------------------------------------+
+            //|                                     JUMP                                   |
+            //+----------------------------------------------------------------------------+
+            if (animator.GetBool("sm_Magic_JumpAttack") && PlayerAction != PlayerAction.None) // note to self: this is a bool defined in the Editor using `SubStateMonitor.cs`. It is true as long as we are inside the substate machine. I learned a few months ago that you cannot "nest" substate machines, so don't try!
+            {
+                //01 jump straight up
+                if (mjaUpA == true)
+                {
+                    LerpOverTime(playerSpawnPoint.position, playerSpawnPoint.position + Vector3.up * 10f, 0.5f);
+                    if (lerpTime >= 0.5f) // move directly over target (in the plane)
+                    {
+                        lerpTime = 0f;
+                        mjaUpA = false;
+                        mjaDownA = true;
+                        AnimTrigger("MJA01"); // turns this on, all other triggers off
+                        transform.position = target.position + Vector3.up * 10f;
+                    }
+                }
+                //02 land on target
+                if (mjaDownA == true)
+                {
+                    LerpOverTime(target.position + Vector3.up * 10f, target.position, 0.5f);
+                    // (play falling sound)
+                    if (lerpTime >= 0.366f) { AnimTrigger("MJA02"); }
+                    if (lerpTime >= 0.5f)
+                    {
+                        lerpTime = 0f;
+                        mjaDownA = false;
+                        mjaUpB = true; // not used yet, only exists in two lines in this script, intention was for use with timed jumps
+                        animator.SetBool("boolTimedHit", false); // TEMPORARY, puts us in sm_Jump_Finish
+                    }
+                }
+                //03 jump straight up again
                 if (mjaUpB == true)
                 {
                     if (animator.GetBool("boolTimedHit") == true)
@@ -169,32 +172,56 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                 }
 
                 if (mjaJumpBack == true && lerpTime <= 24f / 60f)
-				{
-					//LerpOverTime(target.position, playerSpawnPoint.position, 24f / 60f);
-					transform.position = ParabolicTrajectory(target.position, playerSpawnPoint.position, target.position.y, 24f / 60f);
-					lerpTime += Time.deltaTime;
-					if (lerpTime > 24f / 60f)
-					{
-						transform.position = playerSpawnPoint.position; // to ensure alignment
-						lerpTime = 0f;
-						mjaJumpBack = false;
+                {
+                    //LerpOverTime(target.position, playerSpawnPoint.position, 24f / 60f);
+                    transform.position = ParabolicTrajectory(target.position, playerSpawnPoint.position, target.position.y, 24f / 60f);
+                    lerpTime += Time.deltaTime;
+                    if (lerpTime > 24f / 60f)
+                    {
+                        transform.position = playerSpawnPoint.position; // to ensure alignment
+                        lerpTime = 0f;
+                        mjaJumpBack = false;
                         BattleStatus = BattleStatus.Done;
                         PlayerAction = PlayerAction.None;
-					}
-				}
-			}
+                    }
+                }
+            }
 
             //+----------------------------------------------------------------------------+
             //|                                   FIREBALL                                 |
             //+----------------------------------------------------------------------------+
 
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Magic"))
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Magic") && PlayerAction != PlayerAction.None)
             {
                 float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                if ((t >= 84f / 120f && t <= 99f / 120f) && fba01 == false)
+                {
+                    fba01 = true;
+                    animator.speed = 0f; // pause "magic" animation
+                    lerpTime = 0f; //resetting, just in case
+                }
+
+                if (animator.speed == 0f)
+                {
+                    if (lerpTime < 6f)
+                    {
+                        // TODO: launch fireball
+                    }
+                    else if (lerpTime >= 7f)
+                    {
+                        animator.speed = 1f; // continue "magic" animation where it left off
+                    }
+                    lerpTime += Time.deltaTime;
+                }
+
                 if (t >= 0.95f) // this is skipping a lot when t >= 0.99, etc.
                 {
                     BattleStatus = BattleStatus.Done;
                     PlayerAction = PlayerAction.None;
+                    lerpTime = 0f;
+                    // reset action vars:
+                    fba01 = false;
                 }
                 //do stuff
             }
@@ -203,18 +230,18 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             //|                                     LERP                                   |
             //+----------------------------------------------------------------------------+
             if (animator.GetBool("boolRunToTarget") == true)
-			{
-				LerpOverTime(playerSpawnPoint.position, target.position, 0.5f);
-				if (lerpTime >= 0.5f)
-				{
-					animator.SetBool("boolRunToTarget", false);
-					lerpTime = 0f;
-				}
-			}
+            {
+                LerpOverTime(playerSpawnPoint.position, target.position, 0.5f);
+                if (lerpTime >= 0.5f)
+                {
+                    animator.SetBool("boolRunToTarget", false);
+                    lerpTime = 0f;
+                }
+            }
 
-			if (animator.GetCurrentAnimatorStateInfo(0).IsName("Run_Back_Home")) //yes, I want him to run backwards, its funny
-			{
-                if(BattleStatus == BattleStatus.Performing)
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Run_Back_Home")) //yes, I want him to run backwards, its funny
+            {
+                if (BattleStatus == BattleStatus.Performing)
                 {
                     animator.SetBool("boolRunBackHome", true);
 
@@ -235,12 +262,12 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
             }
 
-			// reset flags when action sequence is over
-			if ((failedTimedHit == true || doTimedHit == true) && animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
-			{
-				failedTimedHit = false;
-				doTimedHit = false;
-			}
+            // reset flags when action sequence is over
+            if ((failedTimedHit == true || doTimedHit == true) && animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
+            {
+                failedTimedHit = false;
+                doTimedHit = false;
+            }
 
             /*
 			if (animator.GetCurrentAnimatorStateInfo(0).IsName("Defend"))
@@ -251,41 +278,41 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                     AnimationDefendStart();
                 }
             }*/
-		}
+        }
     }
 
     void Update()
     {
-		if (animator.GetInteger("intCntrlState") == 1)
-		{
-			//+----------------------------------------------------------------------------+
-			//|                               PHYSICAL ATTACK                              |
-			//+----------------------------------------------------------------------------+
-			if (animator.GetCurrentAnimatorStateInfo(0).IsName("First_Punch"))
-			{
-				float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-				// handle player's timed hit input (if there is any)
+        if (animator.GetInteger("intCntrlState") == 1)
+        {
+            //+----------------------------------------------------------------------------+
+            //|                               PHYSICAL ATTACK                              |
+            //+----------------------------------------------------------------------------+
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("First_Punch"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                // handle player's timed hit input (if there is any)
 
-				// prevents player from succeeding by spamming buttons:
-				if (t < 29f / 83f && Input.GetButtonDown("Jump"))
-					failedTimedHit = true;
+                // prevents player from succeeding by spamming buttons:
+                if (t < 29f / 83f && Input.GetButtonDown("Jump"))
+                    failedTimedHit = true;
 
-				if ((t >= 29f / 83f && t < 57f / 83f) && Input.GetButtonDown("Jump") && failedTimedHit == false)
-				{
-					Debug.Log("triggerTimedHit");
-					doTimedHit = true;
-				}
+                if ((t >= 29f / 83f && t < 57f / 83f) && Input.GetButtonDown("Jump") && failedTimedHit == false)
+                {
+                    Debug.Log("triggerTimedHit");
+                    doTimedHit = true;
+                }
 
-				if (doTimedHit == true)
-				{
-					animator.SetBool("boolTimedHit", true);
-					doTimedHit = false;
-				}
+                if (doTimedHit == true)
+                {
+                    animator.SetBool("boolTimedHit", true);
+                    doTimedHit = false;
+                }
 
-				// deal with timed-hit signal: (all signal debug lines work)
-				//if (t >= 29f / 83f && t < 57f / 83f && signal.activeInHierarchy == false) signal.SetActive(true);
-				//if (t >= 57f / 83f && signal.activeInHierarchy == true) signal.SetActive(false);
-			}
+                // deal with timed-hit signal: (all signal debug lines work)
+                //if (t >= 29f / 83f && t < 57f / 83f && signal.activeInHierarchy == false) signal.SetActive(true);
+                //if (t >= 57f / 83f && signal.activeInHierarchy == true) signal.SetActive(false);
+            }
 
             //+----------------------------------------------------------------------------+
             //|                                CONSUME ITEM                                |
@@ -313,7 +340,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
                         GameObject toRemove = null;
 
-                        foreach(var listItem in inventory.itemList)
+                        foreach (var listItem in inventory.itemList)
                         {
                             var itemComponent = listItem.GetComponent<Item>();
                             if (itemComponent.itemName == item)
@@ -342,7 +369,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
                 switch (PlayerAction)
                 {
-                        case PlayerAction.Item:
+                    case PlayerAction.Item:
                         {
                             if (t > 2f && performingItem)
                             {
@@ -355,7 +382,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                         break;
 
                 }
-                
+
             }
             //+----------------------------------------------------------------------------+
             //|                                   DEFEND                                   |
@@ -530,6 +557,21 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         return null;
     }
 
+    // PHYSICAL ATTACK
+    public UnityEngine.Events.UnityAction Melee()
+    {
+        BattleStatus = BattleStatus.Performing;
+        PlayerAction = PlayerAction.Melee;
+
+        battleMenu.SetActive(false);
+        if (meleeTargets.Count == 1) target = meleeTargets[0];
+        else target.position = Vector3.zero;
+        AnimTrigger("triggerPunch");
+        animator.SetBool("boolRunToTarget", true);
+        return null;
+    }
+
+    // FIREBALL
     public UnityEngine.Events.UnityAction Fireball()
     {
         BattleStatus = BattleStatus.Performing;
@@ -542,20 +584,6 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             AnimTrigger("triggerMagic"); // all of Luigi's Magic attacks use the same "windup" animation //05/21/2020 @23:59
         }
         else { Debug.LogError("Hey, it's Spencer...there is supposed to be a rangedTarget on the enemy, but there isn't. Make one in the prefab and call it \"rangedTarget\"!"); }
-        return null;
-    }
-
-    // PHYSICAL ATTACK
-    public UnityEngine.Events.UnityAction Melee()
-    {
-        BattleStatus = BattleStatus.Performing;
-        PlayerAction = PlayerAction.Melee;
-
-        battleMenu.SetActive(false);
-        if (meleeTargets.Count == 1) target = meleeTargets[0];
-        else target.position = Vector3.zero;
-        AnimTrigger("triggerPunch");
-        animator.SetBool("boolRunToTarget", true);
         return null;
     }
 
@@ -695,10 +723,10 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             var transform = battleMenu.transform.GetChild(3).GetChild(2).GetChild(0).transform;
             List<Transform> children = transform.Cast<Transform>().ToList();
 
-            foreach(var child in children)
+            foreach (var child in children)
             {
                 var button = child.GetComponent<Button>();
-                itemButtons.Add(button); 
+                itemButtons.Add(button);
 
             }
 
