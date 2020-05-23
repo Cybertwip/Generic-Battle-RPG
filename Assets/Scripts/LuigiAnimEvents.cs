@@ -7,6 +7,7 @@ using TMPro;
 using AssemblyCSharp.Assets.Scripts;
 using System.Linq;
 using System;
+using UnityEditor.Build.Content;
 //using UnityEditor.Animations;
 
 //public enum ControlState { PLATFORMING, BATTLE }
@@ -52,6 +53,9 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     // fireball flags
     bool fba01;
 
+    private AudioClip sfxClip;
+    private AudioSource audioSource;
+
     private BattleManager battleManager;
 
     public PlayerAction PlayerAction { get; set; }
@@ -63,6 +67,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     void Start()
     {
         Application.targetFrameRate = 60;
+        audioSource = GetComponent<AudioSource>(); 
         SetupControllerState();
 
         if (animator.GetInteger("intCntrlState") == 1)
@@ -207,6 +212,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                     if (lerpTime < 6f)
                     {
                         // TODO: launch fireball
+                        if ((lerpTime % 0.2f) > 0.19f || (lerpTime % 0.2f) < 0.01f) audioSource.PlayOneShot(sfxClip); // this is only for demo purposes
                     }
                     else if (lerpTime >= 7f)
                     {
@@ -231,8 +237,8 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             //+----------------------------------------------------------------------------+
             if (animator.GetBool("boolRunToTarget") == true)
             {
-                LerpOverTime(playerSpawnPoint.position, target.position, 0.5f);
-                if (lerpTime >= 0.5f)
+                LerpOverTime(playerSpawnPoint.position, target.position, 0.375f);
+                if (lerpTime >= 0.375f)
                 {
                     animator.SetBool("boolRunToTarget", false);
                     if (PlayerAction.ToString() == "Melee") AnimTrigger("triggerFirstPunch");
@@ -248,8 +254,8 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
                     if (animator.GetBool("boolRunBackHome") == true)
                     {
-                        LerpOverTime(target.position, playerSpawnPoint.position, 0.5f);
-                        if (lerpTime >= 0.5f)
+                        LerpOverTime(target.position, playerSpawnPoint.position, 0.375f);
+                        if (lerpTime >= 0.375f)
                         {
                             animator.SetBool("boolRunBackHome", false);
                             lerpTime = 0f;
@@ -578,6 +584,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         PlayerAction = PlayerAction.Fireball;
 
         battleMenu.SetActive(false);
+        sfxClip = Resources.Load<AudioClip>("SFX/smrpg_mario_fireball");
         if (rangedTargets.Count != 0)
         {
             target = rangedTargets[0]; // temporary, no selection function yet, just one enemy

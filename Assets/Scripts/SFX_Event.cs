@@ -26,6 +26,11 @@ public class SFX_Event : MonoBehaviour
 				PlaySFX();
 				break;
 
+			case "Luigi_Jump_end_wSound":
+				sfxClip = Resources.Load<AudioClip>("SFX/smrpg_click");
+				PlaySFX();
+				break;
+
 			case ("Luigi_Walk_wSound"):
 				sfxClip = Resources.Load<AudioClip>("SFX/step-floor");
 				PlaySFX();
@@ -35,16 +40,19 @@ public class SFX_Event : MonoBehaviour
 				sfxClip = Resources.Load<AudioClip>("SFX/step-floor");
 				PlaySFX();
 				break;
+
 			case ("Luigi_Battle_Punch_wSound"):
 				sfxClip = Resources.Load<AudioClip>("SFX/smrpg_mario_shell");
 				PlaySFX();
 				break;
+
 			case ("Luigi_Battle_PunchTimed_wSound"):
 				sfxClip = Resources.Load<AudioClip>("SFX/smrpg_mario_hammer");
 				PlaySFX();
 				break;
+
 			default:
-				Debug.LogError("It's Spencer--This animation clip has the an animation event but it can't find the sound you wanted. Check spelling, or if you set the event(s) correctly.");
+				Debug.LogError("It's Spencer--This animation clip has an animation event but it can't play the sound you wanted. Check that transition duration is zero, the clip isn't too short, and that your spelling is correct.");
 				break;
 		}
 	}

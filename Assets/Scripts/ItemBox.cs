@@ -9,10 +9,13 @@ public class ItemBox : MonoBehaviour
     [SerializeField]
     private GameObject[] items = new GameObject[3];
     [SerializeField] private GameObject gm;
+    private AudioSource audioSource;
+    public AudioClip[] sfxClip;
 
     void Start()
     {
         anim = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         if (!disabled)
         {
             anim.Play("ItemBoxIdleState");
@@ -24,6 +27,7 @@ public class ItemBox : MonoBehaviour
         if (!disabled && other.gameObject.tag == "Player")
         {
             anim.Play("ItemBoxGetItemState");
+            audioSource.PlayOneShot(sfxClip[0]);
             var rnd = new System.Random();
             int randInt = rnd.Next(0, 3);
 
@@ -47,5 +51,6 @@ public class ItemBox : MonoBehaviour
             Destroy(itemObj, 1.6f);
             disabled = true;
         }
+        else audioSource.PlayOneShot(sfxClip[1]);
     }
 }
