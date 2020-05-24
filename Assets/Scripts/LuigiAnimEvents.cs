@@ -405,7 +405,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
                         //inventory.itemList.Remove(toRemove);
 
-                        newObj.transform.SetParent(playerSpawnPoint);
+                        //newObj.transform.SetParent(playerSpawnPoint);
 
                         lerpTime = 0;
 
@@ -425,23 +425,35 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                 if(itemType == global::Item.Type.Offensive)
                 {
 
-                    if(!ReferenceEquals(performingItemGO, null))
+                    if(performingItemGO != null && !ReferenceEquals(performingItemGO, null) )
                     {
 
-                        target = meleeTargets[0]; // temporary, no selection function yet, just one enemy
+                        target = rangedTargets[0]; // temporary, no selection function yet, just one enemy
 
-                        StartCoroutine(SimulateProjectileCR(performingItemGO.transform,
-                                                            playerSpawnPoint.position,
-                                                            target.position));
+
+                        var newTarget = new Vector3();
+                        newTarget.x = target.position.x;
+                        newTarget.y = target.position.y;
+                        newTarget.z = target.position.z;
+
+                        SimulateProjectile(performingItemGO.transform,
+                                           performingItemGO.transform.position,
+                                           newTarget);
 
                         //performingItemGO.transform.position = ParabolicTrajectory(playerSpawnPoint.position, target.position, target.position.y + 4, lerpTime, 2f);
-                        lerpTime += Time.deltaTime;
+
 
                     }
                     else
                     {
                         performingItemGO = null;
                         lerpTime = 0;
+
+                        performingItem = false;
+
+                        BattleStatus = BattleStatus.Done;
+                        PlayerAction = PlayerAction.None;
+
                     }
 
                 }
@@ -520,62 +532,48 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         animator.speed = 1f;
     }
 
-    float gravity = 10f;
 
-    IEnumerator SimulateProjectileCR(Transform projectile, Vector3 startPosition, Vector3 endPosition)
+
+    bool SimulateProjectile(Transform projectile, Vector3 origin, Vector3 target)
     {
-        projectile.position = startPosition;
-        float arcAmount = 8f;
-        float heightOfShot = 12f;
-        Vector3 newVel = new Vector3();
-        // Find the direction vector without the y-component
-        Vector3 direction = new Vector3(endPosition.x, 0f, endPosition.z) - new Vector3(startPosition.x, 0f, startPosition.z);
-        // Find the distance between the two points (without the y-component)
-        float range = direction.magnitude;
+        const float gravity = 9;
+        const float firingAngle = 45;
 
-        // Find unit direction of motion without the y component
-        Vector3 unitDirection = direction.normalized;
-        // Find the max height
+        // Move projectile to the position of throwing object + add some offset if needed.
+        projectile.position = origin + new Vector3(0, 0.0f, 0);
 
-        float maxYPos = startPosition.y + heightOfShot;
+        // Calculate distance to target
+        float target_Distance = Vector3.Distance(projectile.position, target);
 
-        // if it has, switch the height to match a 45 degree launch angle
-        if (range / 2f > maxYPos)
-            maxYPos = range / arcAmount;
-        //fix bug when shooting on tower
-        if (maxYPos - startPosition.y <= 0)
-        {
-            maxYPos = startPosition.y + 2f;
-        }
-        //fix bug caused if we can't shoot higher than target
-        if (maxYPos - endPosition.y <= 0)
-        {
-            maxYPos = endPosition.y + 2f;
-        }
-        // find the initial velocity in y direction
-        newVel.y = Mathf.Sqrt(-2.0f * -gravity * (maxYPos - startPosition.y));
-        // find the total time by adding up the parts of the trajectory
-        // time to reach the max
-        float timeToMax = Mathf.Sqrt(-2.0f * (maxYPos - startPosition.y) / -gravity);
-        // time to return to y-target
-        float timeToTargetY = Mathf.Sqrt(-2.0f * (maxYPos - endPosition.y) / -gravity);
-        // add them up to find the total flight time
-        float totalFlightTime = timeToMax + timeToTargetY;
-        // find the magnitude of the initial velocity in the xz direction
-        float horizontalVelocityMagnitude = range / totalFlightTime;
-        // use the unit direction to find the x and z components of initial velocity
-        newVel.x = horizontalVelocityMagnitude * unitDirection.x;
-        newVel.z = horizontalVelocityMagnitude * unitDirection.z;
+        // Calculate the velocity needed to throw the object to the target at specified angle.
+        float projectile_Velocity = target_Distance / (Mathf.Sin(2 * firingAngle * Mathf.Deg2Rad) / gravity);
+
+        // Extract the X  Y componenent of the velocity
+        float Vx = Mathf.Sqrt(projectile_Velocity) * Mathf.Cos(firingAngle * Mathf.Deg2Rad);
+        float Vy = Mathf.Sqrt(projectile_Velocity) * Mathf.Sin(firingAngle * Mathf.Deg2Rad);
+
+        // Calculate flight time.
+        float flightDuration = target_Distance / Vx;
+
+        // Rotate projectile to face the target.
+        projectile.rotation = Quaternion.LookRotation(target - projectile.position);
 
         float elapse_time = 0;
-        while (elapse_time < totalFlightTime)
+
+        if (elapse_time < flightDuration)
         {
-            projectile.Translate(newVel.x * Time.deltaTime, (newVel.y - (gravity * elapse_time)) * Time.deltaTime, newVel.z * Time.deltaTime);
-            elapse_time += Time.deltaTime;
-            yield return null;
+            float deltaTime = Time.deltaTime;
+
+            projectile.Translate(0, (Vy - (gravity * elapse_time)) * deltaTime, Vx * deltaTime);
+
+            elapse_time += deltaTime;
+
+            return true;
         }
-
-
+        else
+        {
+            return false;
+        }
     }
 
     //+----------------------------------------------------------------------------+

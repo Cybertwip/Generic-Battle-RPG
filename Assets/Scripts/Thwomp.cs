@@ -17,7 +17,6 @@ public class Thwomp : Enemy
         currentHP = 200;
     }
 
-    
     /*
     protected override void Awake()
     {

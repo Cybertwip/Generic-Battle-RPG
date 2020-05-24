@@ -19,7 +19,7 @@ public class Enemy : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.GetComponent<Item>() != null)
+        if(other.gameObject.tag == "Item")
         {
             Destroy(other.gameObject);
         }

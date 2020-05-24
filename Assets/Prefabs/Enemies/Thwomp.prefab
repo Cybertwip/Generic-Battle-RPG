@@ -20619,7 +20619,6 @@ GameObject:
   - component: {fileID: 6500213231063175766}
   - component: {fileID: 182721011}
   - component: {fileID: 4382608169387992447}
-  - component: {fileID: -7446633629652519434}
   m_Layer: 0
   m_Name: Thwomp
   m_TagString: Untagged
@@ -20676,20 +20675,6 @@ MonoBehaviour:
   maxFP: 50
   currentHP: 200
   currentFP: 50
---- !u!136 &-7446633629652519434
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7813249089717821509}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 4
-  m_Height: 4
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8206174072878268015
 GameObject:
   m_ObjectHideFlags: 0
