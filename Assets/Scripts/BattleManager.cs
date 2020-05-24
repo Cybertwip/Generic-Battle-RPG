@@ -6,7 +6,7 @@ using TMPro;
 using AssemblyCSharp.Assets.Scripts;
 using System.Linq;
 
-public enum PlayerAction { Melee, Special, Fireball, Item, Defend, None } //@TODO move to self contained enum class //appended `Fireball` 05/21/2020 @ 23:36
+public enum PlayerAction { Melee, Special, Item, Defend, None } //@TODO move to self contained enum class //appended `Fireball` 05/21/2020 @ 23:36
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
 
 public class BattleManager : MonoBehaviour
@@ -18,7 +18,9 @@ public class BattleManager : MonoBehaviour
 
     private List<IPartyMemberBattleActions> FinishedTurnList = new List<IPartyMemberBattleActions>();
 
-    private List<string> TurnItemList = new List<string>();
+
+    private Dictionary<IPartyMemberBattleActions, string> TurnItemKeyMap = new Dictionary<IPartyMemberBattleActions, string>();
+    private Dictionary<IPartyMemberBattleActions, SpecialAttack.Attack> SpecialKeyMap = new Dictionary<IPartyMemberBattleActions, SpecialAttack.Attack>();
 
     IPartyMemberBattleActions currentPerformingCharacter;
 
@@ -28,17 +30,19 @@ public class BattleManager : MonoBehaviour
         TurnList.Add(member);
     }
 
+    public void SubmitTurn(IPartyMemberBattleActions member, PlayerAction action, SpecialAttack.Attack attack)
+    {
+        TurnKeyMap[member] = action;
+        TurnList.Add(member);
+        SpecialKeyMap[member] = attack;
+    }
+
     public void SubmitTurn(IPartyMemberBattleActions member, PlayerAction action, string parameter)
     {
         TurnKeyMap[member] = action;
         TurnList.Add(member);
 
-        switch (action)
-        {
-            case PlayerAction.Item:
-                TurnItemList.Add(parameter);
-                break;
-        }
+        TurnItemKeyMap[member] = parameter;
     }
     public void PerformTurn()
     {
@@ -51,8 +55,7 @@ public class BattleManager : MonoBehaviour
 
             case PlayerAction.Item:
 
-                lastCharacter.Item(TurnItemList.First());
-                TurnItemList.RemoveAt(0);
+                lastCharacter.Item(TurnItemKeyMap[lastCharacter]);
 
                 break;
 
@@ -62,11 +65,7 @@ public class BattleManager : MonoBehaviour
 
 
             case PlayerAction.Special:
-                lastCharacter.Special();
-                break;
-
-            case PlayerAction.Fireball:
-                lastCharacter.Fireball();
+                lastCharacter.Special(SpecialKeyMap[lastCharacter]);
                 break;
         }
 

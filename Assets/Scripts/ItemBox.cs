@@ -33,16 +33,24 @@ public class ItemBox : MonoBehaviour
 
             var inventory = Inventory.Instance;
 
-            var randomItem = inventory.Items[randInt].GetPath;
+            var randomItem = inventory.Items[2];
 
-            GameObject prefab = Resources.Load(randomItem) as GameObject;
+            GameObject prefab = Resources.Load(randomItem.GetPath) as GameObject;
            
             GameObject itemObj =
                 Instantiate(prefab,
                             transform.position + new Vector3(0, 0.375f, 0),
                             Camera.main.transform.rotation);
+            GameObject newObject = new GameObject();
 
-            GameObject newObj = Instantiate(items[randInt]);
+            var item = newObject.AddComponent<Item>();
+            item.id = -1;
+            item.type = randomItem.Type;
+            item.itemName = randomItem.Name;
+            item.menuName = randomItem.MenuName;
+            item.description = randomItem.Description;
+
+            GameObject newObj = newObject; //Instantiate(items[randInt]);
             /*GameObject itemObj = Instantiate(items[randInt].GetComponent<Item>().getPrefab,
                 transform.position + new Vector3(0, 0.375f, 0), Camera.main.transform.rotation);
             GameObject newObj = Instantiate(items[randInt]);*/

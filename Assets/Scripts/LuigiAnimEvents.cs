@@ -62,6 +62,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public BattleStatus BattleStatus { get; set; }
 
     private bool performingItem = false;
+    private GameObject performingItemGO = null;
     private string currentPerformingItem = "";
 
     void Start()
@@ -80,8 +81,8 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
             // Add listeners to buttons:
             attackButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Melee); });
-            jumpButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Special); });
-            fireballButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Fireball); }); //05/21/2020 @ 23:44
+            jumpButton.onClick.AddListener(call: delegate { RegisterSpecialWithBattleManager(PlayerAction.Special, SpecialAttack.Attack.Jump); });
+            fireballButton.onClick.AddListener(call: delegate { RegisterSpecialWithBattleManager(PlayerAction.Special, SpecialAttack.Attack.Fire); }); //05/21/2020 @ 23:44
             defendButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Defend); });
 
             foreach (var button in itemButtons)
@@ -179,7 +180,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                 if (mjaJumpBack == true && lerpTime <= 24f / 60f)
                 {
                     //LerpOverTime(target.position, playerSpawnPoint.position, 24f / 60f);
-                    transform.position = ParabolicTrajectory(target.position, playerSpawnPoint.position, target.position.y, 24f / 60f);
+                    transform.position = ParabolicTrajectory(target.position, playerSpawnPoint.position, target.position.y, lerpTime, 24f / 60f);
                     lerpTime += Time.deltaTime;
                     if (lerpTime > 24f / 60f)
                     {
@@ -349,7 +350,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                         foreach (var listItem in inventory.itemList)
                         {
                             var itemComponent = listItem.GetComponent<Item>();
-                            if (itemComponent.itemName == item)
+                            if (itemComponent.itemName == currentPerformingItem)
                             {
                                 toRemove = listItem;
                                 break;
@@ -367,6 +368,86 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             }
 
             //+----------------------------------------------------------------------------+
+            //|                                THROW ITEM                                  |
+            //+----------------------------------------------------------------------------+
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ThrowItem"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                if (t >= 54f / 90f)
+                {
+                    if (!performingItem)
+                    {
+                        performingItem = true;
+
+                        var inventory = Inventory.Instance;
+
+                        var item = inventory.Items.Where(i => i.Name == currentPerformingItem).First().IconPath;
+
+                        GameObject prefab = Resources.Load(item) as GameObject;
+
+                        GameObject newObj =
+                            Instantiate(prefab,
+                                        playerSpawnPoint.position + new Vector3(0, 2.75f, 0.5f),
+                                        Camera.main.transform.rotation);
+
+                        GameObject toRemove = null;
+
+                        foreach (var listItem in inventory.itemList)
+                        {
+                            var itemComponent = listItem.GetComponent<Item>();
+                            if (itemComponent.itemName == currentPerformingItem)
+                            {
+                                toRemove = listItem;
+                                break;
+                            }
+                        }
+
+                        //inventory.itemList.Remove(toRemove);
+
+                        newObj.transform.SetParent(playerSpawnPoint);
+
+                        lerpTime = 0;
+
+                        performingItemGO = newObj;
+                    }
+                }
+            }
+
+            //+----------------------------------------------------------------------------+
+            //|                                 THROW ITEM                                 |
+            //+----------------------------------------------------------------------------+
+
+            if (performingItem)
+            {
+                var itemType = Inventory.Instance.GetItemTypeByName(currentPerformingItem);
+
+                if(itemType == global::Item.Type.Offensive)
+                {
+
+                    if(!ReferenceEquals(performingItemGO, null))
+                    {
+
+                        target = meleeTargets[0]; // temporary, no selection function yet, just one enemy
+
+                        StartCoroutine(SimulateProjectileCR(performingItemGO.transform,
+                                                            playerSpawnPoint.position,
+                                                            target.position));
+
+                        //performingItemGO.transform.position = ParabolicTrajectory(playerSpawnPoint.position, target.position, target.position.y + 4, lerpTime, 2f);
+                        lerpTime += Time.deltaTime;
+
+                    }
+                    else
+                    {
+                        performingItemGO = null;
+                        lerpTime = 0;
+                    }
+
+                }
+            }
+
+            //+----------------------------------------------------------------------------+
             //|                                 BATTLE IDLE                                |
             //+----------------------------------------------------------------------------+
             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
@@ -379,10 +460,16 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                         {
                             if (t > 2f && performingItem)
                             {
-                                BattleStatus = BattleStatus.Done;
-                                PlayerAction = PlayerAction.None;
-                                performingItem = false;
-                                currentPerformingItem = "";
+                                var itemType = Inventory.Instance.GetItemTypeByName(currentPerformingItem);
+
+                                if(itemType == global::Item.Type.Support)
+                                {
+                                    BattleStatus = BattleStatus.Done;
+                                    PlayerAction = PlayerAction.None;
+                                    performingItem = false;
+                                    currentPerformingItem = "";
+                                }
+
                             }
                         }
                         break;
@@ -433,6 +520,64 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         animator.speed = 1f;
     }
 
+    float gravity = 10f;
+
+    IEnumerator SimulateProjectileCR(Transform projectile, Vector3 startPosition, Vector3 endPosition)
+    {
+        projectile.position = startPosition;
+        float arcAmount = 8f;
+        float heightOfShot = 12f;
+        Vector3 newVel = new Vector3();
+        // Find the direction vector without the y-component
+        Vector3 direction = new Vector3(endPosition.x, 0f, endPosition.z) - new Vector3(startPosition.x, 0f, startPosition.z);
+        // Find the distance between the two points (without the y-component)
+        float range = direction.magnitude;
+
+        // Find unit direction of motion without the y component
+        Vector3 unitDirection = direction.normalized;
+        // Find the max height
+
+        float maxYPos = startPosition.y + heightOfShot;
+
+        // if it has, switch the height to match a 45 degree launch angle
+        if (range / 2f > maxYPos)
+            maxYPos = range / arcAmount;
+        //fix bug when shooting on tower
+        if (maxYPos - startPosition.y <= 0)
+        {
+            maxYPos = startPosition.y + 2f;
+        }
+        //fix bug caused if we can't shoot higher than target
+        if (maxYPos - endPosition.y <= 0)
+        {
+            maxYPos = endPosition.y + 2f;
+        }
+        // find the initial velocity in y direction
+        newVel.y = Mathf.Sqrt(-2.0f * -gravity * (maxYPos - startPosition.y));
+        // find the total time by adding up the parts of the trajectory
+        // time to reach the max
+        float timeToMax = Mathf.Sqrt(-2.0f * (maxYPos - startPosition.y) / -gravity);
+        // time to return to y-target
+        float timeToTargetY = Mathf.Sqrt(-2.0f * (maxYPos - endPosition.y) / -gravity);
+        // add them up to find the total flight time
+        float totalFlightTime = timeToMax + timeToTargetY;
+        // find the magnitude of the initial velocity in the xz direction
+        float horizontalVelocityMagnitude = range / totalFlightTime;
+        // use the unit direction to find the x and z components of initial velocity
+        newVel.x = horizontalVelocityMagnitude * unitDirection.x;
+        newVel.z = horizontalVelocityMagnitude * unitDirection.z;
+
+        float elapse_time = 0;
+        while (elapse_time < totalFlightTime)
+        {
+            projectile.Translate(newVel.x * Time.deltaTime, (newVel.y - (gravity * elapse_time)) * Time.deltaTime, newVel.z * Time.deltaTime);
+            elapse_time += Time.deltaTime;
+            yield return null;
+        }
+
+
+    }
+
     //+----------------------------------------------------------------------------+
     //|                          ANIMATIONDEFENDTIMED                              |
     //+----------------------------------------------------------------------------+
@@ -462,7 +607,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
      * ANY ending point, the max height of the projectile, and the duration of time it should
      * take the projectile to traverse the arc.
     */
-    private Vector3 ParabolicTrajectory(Vector3 start, Vector3 end, float height, float duration)
+    private Vector3 ParabolicTrajectory(Vector3 start, Vector3 end, float height, float lerp, float duration)
     {
         Vector3 direction = new Vector3((end - start).x, 0f, (end - start).z);
 
@@ -470,8 +615,8 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         float Ye = end.y;
         float Ym = height + 1f;
         float sqrtYs = Mathf.Sqrt((Ym - Ys) / (Ym - Ye)); //useful expression
-        float Xval = start.x + direction.x * lerpTime / duration;
-        float Zval = start.z + direction.z * lerpTime / duration;
+        float Xval = start.x + direction.x * lerp / duration;
+        float Zval = start.z + direction.z * lerp / duration;
         float Yval = 0;
 
         //Debug.Log("xDir is " + Mathf.Abs(direction.x));
@@ -528,6 +673,13 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     //+------------------------------------------------------------------------------+
 
 
+    public UnityEngine.Events.UnityAction RegisterSpecialWithBattleManager(PlayerAction action, SpecialAttack.Attack attack)
+    {
+
+        battleManager.SubmitTurn(this, action, attack);
+        return null;
+    }
+
 
     public UnityEngine.Events.UnityAction RegisterWithBattleManager(PlayerAction action)
     {
@@ -550,16 +702,35 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     //+------------------------------------------------------------------------------+
 
     // JUMP ATTACK
-    public UnityEngine.Events.UnityAction Special()
+    public UnityEngine.Events.UnityAction Special(SpecialAttack.Attack attack)
     {
         BattleStatus = BattleStatus.Performing;
         PlayerAction = PlayerAction.Special;
 
         battleMenu.SetActive(false);
-        if (jumpTargets.Count == 1) target = jumpTargets[0]; // temporary, no selection function yet, just one enemy
-        else target.position = Vector3.zero; // weird placement... 05/20/2020 @23:54
-        AnimTrigger("triggerJump");
-        mjaUpA = true;
+
+        switch (attack)
+        {
+            case SpecialAttack.Attack.Jump:
+                    if (jumpTargets.Count == 1) target = jumpTargets[0]; // temporary, no selection function yet, just one enemy
+                    else target.position = Vector3.zero; // weird placement... 05/20/2020 @23:54
+                    AnimTrigger("triggerJump");
+                    mjaUpA = true;
+                break;
+
+            case SpecialAttack.Attack.Fire:
+                sfxClip = Resources.Load<AudioClip>("SFX/smrpg_mario_fireball");
+                if (rangedTargets.Count != 0)
+                {
+                    target = rangedTargets[0]; // temporary, no selection function yet, just one enemy
+                    AnimTrigger("triggerMagic"); // all of Luigi's Magic attacks use the same "windup" animation //05/21/2020 @23:59
+                }
+                else { Debug.LogError("Hey, it's Spencer...there is supposed to be a rangedTarget on the enemy, but there isn't. Make one in the prefab and call it \"rangedTarget\"!"); }
+
+                break;
+        }
+
+
         return null;
     }
 
@@ -574,23 +745,6 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         else target.position = Vector3.zero;
         AnimTrigger("triggerPunch");
         animator.SetBool("boolRunToTarget", true);
-        return null;
-    }
-
-    // FIREBALL
-    public UnityEngine.Events.UnityAction Fireball()
-    {
-        BattleStatus = BattleStatus.Performing;
-        PlayerAction = PlayerAction.Fireball;
-
-        battleMenu.SetActive(false);
-        sfxClip = Resources.Load<AudioClip>("SFX/smrpg_mario_fireball");
-        if (rangedTargets.Count != 0)
-        {
-            target = rangedTargets[0]; // temporary, no selection function yet, just one enemy
-            AnimTrigger("triggerMagic"); // all of Luigi's Magic attacks use the same "windup" animation //05/21/2020 @23:59
-        }
-        else { Debug.LogError("Hey, it's Spencer...there is supposed to be a rangedTarget on the enemy, but there isn't. Make one in the prefab and call it \"rangedTarget\"!"); }
         return null;
     }
 
@@ -614,8 +768,18 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         currentPerformingItem = name;
         performingItem = false;
 
+        var performingItemType = Inventory.Instance.GetItemTypeByName(name);
         battleMenu.SetActive(false);
-        AnimTrigger("triggerConsume");
+
+        switch (performingItemType)
+        {
+            case global::Item.Type.Support:
+                AnimTrigger("triggerConsume");
+                break;
+            case global::Item.Type.Offensive:
+                AnimTrigger("triggerThrow");
+                break;
+        }
         return null;
     }
 
@@ -668,11 +832,26 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             GameObject[] targets = GameObject.FindGameObjectsWithTag("Target");
             foreach (GameObject obj in targets)
             {
-                if (obj.name == "MeleeTarget") meleeTargets.Add(obj.transform);
-                else if (obj.name == "RangedTarget") rangedTargets.Add(obj.transform);
-                else if (obj.name == "JumpTarget") jumpTargets.Add(obj.transform);
-                else if (obj.name == "SpawnPlayer") playerSpawnPoint = obj.transform;
-                else if (obj.name == "SpawnEnemy") enemySpawnPoint = obj.transform;
+                if (obj.name == "MeleeTarget")
+                {
+                    meleeTargets.Add(obj.transform);
+                }
+                else if (obj.name == "RangedTarget")
+                {
+                    rangedTargets.Add(obj.transform);
+                }
+                else if (obj.name == "JumpTarget")
+                {
+                    jumpTargets.Add(obj.transform);
+                }
+                else if (obj.name == "SpawnPlayer")
+                {
+                    playerSpawnPoint = obj.transform;
+                }
+                else if (obj.name == "SpawnEnemy")
+                {
+                    enemySpawnPoint = obj.transform;
+                }
                 else Debug.LogError("ERROR: Unrecognized target name. Check spelling.");
             }
         }

@@ -9,11 +9,12 @@ public class SpecialAttack : MonoBehaviour
     public string description;
     public int hpDamage;
     public int fpCost;
-    public Types spclType;
+    public Attack spclType;
 
-    public enum Types
+    public enum Attack
     {
-        PhysDamage,
+        Melee,
+        Jump,
         Fire,
         Ice,
         Lightning,
