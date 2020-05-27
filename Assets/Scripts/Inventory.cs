@@ -88,6 +88,22 @@ public class Inventory : MonoBehaviour
             item.description = randomItem.Description;
 
             itemList.Add(newObject);
+
+            GameObject newObject2 = new GameObject();
+
+            randomItem = Items.First();
+
+
+            var item2 = newObject2.AddComponent<Item>();
+            item2.id = -1;
+            item2.type = randomItem.Type;
+            item2.itemName = randomItem.Name;
+            item2.menuName = randomItem.MenuName;
+            item2.description = randomItem.Description;
+
+            itemList.Add(newObject2);
+
+            DontDestroyOnLoad(newObject2);
         }
 
         else

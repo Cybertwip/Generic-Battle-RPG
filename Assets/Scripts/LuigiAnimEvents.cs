@@ -462,7 +462,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             //+----------------------------------------------------------------------------+
             //|                                 BATTLE IDLE                                |
             //+----------------------------------------------------------------------------+
-            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
             {
                 float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
 
@@ -470,7 +470,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                 {
                     case PlayerAction.Item:
                         {
-                            if (t > 2f && performingItem)
+                            if (performingItem && t > 2 && (performingItemGO == null || ReferenceEquals(performingItemGO, null)))
                             {
                                 var itemType = Inventory.Instance.GetItemTypeByName(currentPerformingItem);
 

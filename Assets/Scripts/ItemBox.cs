@@ -33,7 +33,7 @@ public class ItemBox : MonoBehaviour
 
             var inventory = Inventory.Instance;
 
-            var randomItem = inventory.Items[2];
+            var randomItem = inventory.Items[0];
 
             GameObject prefab = Resources.Load(randomItem.GetPath) as GameObject;
            
