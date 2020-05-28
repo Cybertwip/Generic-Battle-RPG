@@ -89,6 +89,9 @@ public class Inventory : MonoBehaviour
 
             itemList.Add(newObject);
 
+            DontDestroyOnLoad(newObject);
+
+
             GameObject newObject2 = new GameObject();
 
             randomItem = Items.First();

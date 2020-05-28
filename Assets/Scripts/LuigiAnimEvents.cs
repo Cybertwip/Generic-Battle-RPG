@@ -388,7 +388,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
                         GameObject newObj =
                             Instantiate(prefab,
-                                        playerSpawnPoint.position + new Vector3(0, 2.75f, 0.5f),
+                                        playerSpawnPoint.position + new Vector3(0, 1.0f, 1.5f),
                                         Camera.main.transform.rotation);
 
                         GameObject toRemove = null;
@@ -555,6 +555,11 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         // Calculate flight time.
         float flightDuration = target_Distance / Vx;
 
+        Quaternion oldRotation = new Quaternion(projectile.rotation.x,
+                                                projectile.rotation.y,
+                                                projectile.rotation.z,
+                                                projectile.rotation.w);
+
         // Rotate projectile to face the target.
         projectile.rotation = Quaternion.LookRotation(target - projectile.position);
 
@@ -565,6 +570,8 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             float deltaTime = Time.deltaTime;
 
             projectile.Translate(0, (Vy - (gravity * elapse_time)) * deltaTime, Vx * deltaTime);
+
+            projectile.rotation = oldRotation;
 
             elapse_time += deltaTime;
 
