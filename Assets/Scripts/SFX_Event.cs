@@ -18,7 +18,6 @@ public class SFX_Event : MonoBehaviour
 	{
 		currentClipInfo = anim.GetCurrentAnimatorClipInfo(0);
 		string ccName = currentClipInfo[0].clip.name;
-		Debug.Log(ccName);
 		switch (ccName)
 		{
 			case "Luigi_Jump_start_wSound":
@@ -26,7 +25,12 @@ public class SFX_Event : MonoBehaviour
 				PlaySFX();
 				break;
 
-			case "Luigi_Jump_end_wSound":
+			case "Luigi_Jump_down_wSound":
+				sfxClip = Resources.Load<AudioClip>("SFX/freesfx_falling_quick");
+				PlaySFX();
+				break;
+
+			case "Luigi_Jump_end_wSound": // fix this
 				sfxClip = Resources.Load<AudioClip>("SFX/smrpg_click");
 				PlaySFX();
 				break;

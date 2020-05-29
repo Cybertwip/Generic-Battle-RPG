@@ -48,6 +48,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     bool mjaDownA;
     bool mjaUpB;
     bool mjaDownB;
+    bool mjaWait;
     bool mjaStandUp;
     bool mjaJumpBack;
     // fireball flags
@@ -107,6 +108,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         timer = 0f;
         doTimedHit = false;
         failedTimedHit = false;
+        mjaWait = false;
         mjaStandUp = false;
         mjaJumpBack = false;
         fba01 = false;
@@ -140,7 +142,33 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                 //02 land on target
                 if (mjaDownA == true)
                 {
-                    LerpOverTime(target.position + Vector3.up * 10f, target.position, 0.5f);
+                    LerpOverTime(target.position + Vector3.up * 10f, target.position, 0.5f); // falling 10 units onto enemy
+                    if (lerpTime >= 0.5f)
+                    {
+                        animator.speed = 0.5f;
+                        AnimTrigger("MJA02");
+                        lerpTime = 0f;
+                        mjaDownA = false;
+                        mjaWait = true;
+                    }
+                }
+                //02.5 wait (better would be to stretch landing animation to 0.25 seconds)
+                if (mjaWait == true)
+                {
+                    lerpTime += Time.deltaTime;
+                    if (lerpTime >= 0.25f)
+                    {
+                        mjaWait = false;
+                        mjaUpB = true; // not used yet, only exists in two lines in this script, intention was for use with timed jumps
+                        animator.speed = 1f;
+                        AnimTrigger("triggerTimedHitFailed"); // TEMPORARY, puts us in sm_Jump_Finish
+                    }
+                }
+                //02 land on target
+                /*
+                if (mjaDownA == true)
+                {
+                    LerpOverTime(target.position + Vector3.up * 10f, target.position, 0.5f); // falling 10 units onto enemy
                     // (play falling sound)
                     if (lerpTime >= 0.366f) { AnimTrigger("MJA02"); }
                     if (lerpTime >= 0.5f)
@@ -151,13 +179,14 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
                         animator.SetBool("boolTimedHit", false); // TEMPORARY, puts us in sm_Jump_Finish
                     }
                 }
-                //03 jump straight up again
+                */
+                //03 jump straight up again, not implemented yet
                 if (mjaUpB == true)
                 {
-                    if (animator.GetBool("boolTimedHit") == true)
+                    if (animator.GetBool("boolTimedHit") == true) // in the tree, not implemented
                     {
                         Debug.LogError("It's Spencer: We should not be here, this is not implemented yet!");
-                        //jump straight up again, implementation DNE in state machine yet
+                        //jump straight up again, state variables DNE in state machine yet
                     }
                     else
                     {
@@ -328,7 +357,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             {
                 float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
 
-                if (t >= 155f / 215f)
+                if (t >= 140f / 216f) // t >= 155f/ 215f
                 {
                     if (!performingItem)
                     {
@@ -943,6 +972,6 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             if (p.type == AnimatorControllerParameterType.Trigger)
                 animator.ResetTrigger(p.name);
         animator.SetTrigger(triggerName);
-        Debug.Log("triggered " + triggerName);
+        //Debug.Log("triggered " + triggerName);
     }
 }
