@@ -7,7 +7,9 @@ public class AudioManager : MonoBehaviour
 {
     private static AudioManager instance = null; // static (class level) variable
     public static AudioManager Instance { get { return instance; } } // static getter (only accessing allowed)
-    
+
+    public List<string> anims_w_soundFX;
+
     public AudioSource bgm;
     private Scene currentScene;
 
@@ -24,6 +26,17 @@ public class AudioManager : MonoBehaviour
             if (this != instance) { Destroy(gameObject); }
         }
         currentScene = SceneManager.GetActiveScene();
+
+        anims_w_soundFX = new List<string>()
+        {
+            "Luigi_Jump_start_wSound",
+            "Luigi_Jump_down_wSound",
+            "Luigi_Jump_end_wSound",
+            "Luigi_Walk_wSound",
+            "Luigi_Run_wSound",
+            "Luigi_Battle_Punch_wSound",
+            "Luigi_Battle_PunchTimed_wSound"
+        };
     }
 
     void OnEnable()
@@ -51,5 +64,4 @@ public class AudioManager : MonoBehaviour
         }
         currentScene = scene;
     }
-    
 }

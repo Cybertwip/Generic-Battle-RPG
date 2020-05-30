@@ -12,6 +12,7 @@ TagManager:
   - Magic
   - Target
   - BattleManager
+  - AudioManager
   layers:
   - Default
   - TransparentFX

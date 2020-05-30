@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2946889076352221138}
   m_Layer: 0
   m_Name: AudioManager
-  m_TagString: Untagged
+  m_TagString: AudioManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -140,4 +140,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e0482c6aaaced541820fed9421f8835, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anims_w_soundFX: []
   bgm: {fileID: 230698650285988119}
