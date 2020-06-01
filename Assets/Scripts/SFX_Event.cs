@@ -70,8 +70,8 @@ public class SFX_Event : MonoBehaviour
 			Debug.LogError(ccName + " isn't known to the AudioManager. Add it to the list in AudioManger.cs");
 		}
 	}
-	
-    private void PlaySFX()
+
+	private void PlaySFX()
 	{
 		source.PlayOneShot(sfxClip);
 	}
