@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c0bed8ec6c2ff0b4795839a1f544118b
+guid: 97a19cbc7c0e27040b858458e8087c89
 ModelImporter:
   serializedVersion: 19300
   internalIDToNameTable:
@@ -26,7 +26,7 @@ ModelImporter:
     second: Thwomp|Tantrum
   - first:
       74: 1651863721895523723
-    second: Thowmp|Thwomp
+    second: Thwomp|Thwomp
   - first:
       74: 4451507099812114786
     second: Thwomp|Wince_From_Grimmace
@@ -34,11 +34,6 @@ ModelImporter:
       74: 8123170709131904105
     second: Thwomp|Wince_From_Pout
   externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: ThwompEye
-    second: {fileID: 2100000, guid: 6f112b517fbceea44a3e8dae66711cfe, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -285,7 +280,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Thowmp|Thwomp
+      name: Thwomp|Thwomp
       takeName: Armature|Thwomp
       internalID: 0
       firstFrame: 0
@@ -388,7 +383,7 @@ ModelImporter:
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
-    preserveHierarchy: 1
+    preserveHierarchy: 0
     skinWeightsMode: 0
     maxBonesPerVertex: 4
     minBoneWeight: 0.001

@@ -4335,7 +4335,7 @@ MonoBehaviour:
   itemButtons: []
   playerPrefab: {fileID: 8326184623609939726, guid: 4266b82552cc23547aa269df571dac70,
     type: 3}
-  enemyPrefab: {fileID: 567726522458760635, guid: 234c2d16ac3a56a47b3e8db5e1f44325,
+  enemyPrefab: {fileID: 896869414946143417, guid: 5714d0ca6e39408428fa0eaee140c83f,
     type: 3}
   playerSpawnPoint: {fileID: 1223782509}
   enemySpawnPoint: {fileID: 519666028}
