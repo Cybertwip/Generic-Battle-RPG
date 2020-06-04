@@ -8,7 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: WoodPlanks
-  m_Shader: {fileID: 4800000, guid: 0e9d5a909a1f7e84882a534d0d11e49f, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 07817245bdca0774988e532e2dc2318a,
+    type: 3}
   m_ShaderKeywords: _NORMALMAP _SPECGLOSSMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -19,6 +20,22 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_2CD1A051:
+        m_Texture: {fileID: 2800000, guid: 2259131ba0a8eeb49bd969460a945528, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_45ECD46F:
+        m_Texture: {fileID: 2800000, guid: 1b41c1b11b8e77c418d07c8829f8f517, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_4A9FA41B:
+        m_Texture: {fileID: 2800000, guid: 128f8d53e32bfc347b2a5e0d6c8a3333, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_B904B44:
+        m_Texture: {fileID: 2800000, guid: 8507f8b0507b925448ce9336760812ec, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: da4ceeca3497cfa45990407e57d514c1, type: 3}
         m_Scale: {x: 1, y: 1}

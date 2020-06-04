@@ -7,8 +7,14 @@ namespace AssemblyCSharp.Assets.Scripts
     {
         BattleStatus BattleStatus { get; set; }
 
-        UnityEngine.Events.UnityAction Special();
-        UnityEngine.Events.UnityAction Melee(); 
+        UnityEngine.Events.UnityAction Special(SpecialAttack.Attack attack);
+        UnityEngine.Events.UnityAction Melee();
         UnityEngine.Events.UnityAction Defend();
+        UnityEngine.Events.UnityAction Item(string name);
+
+        UnityEngine.Events.UnityAction OnBattleLoopEnd();
+
+        //void TakeDamage(int totalDamage);
+
     }
 }

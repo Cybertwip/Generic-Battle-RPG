@@ -17,6 +17,15 @@ public class Enemy : MonoBehaviour
     public int currentHP;
     public int currentFP;
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "Item")
+        {
+            Destroy(other.gameObject);
+        }
+    }
+
+
     /*
     [System.NonSerialized] public string id = "Enemy";
     [System.NonSerialized] public int hp = 100;

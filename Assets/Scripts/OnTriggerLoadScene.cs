@@ -14,8 +14,11 @@ public class OnTriggerLoadScene : MonoBehaviour
     public Animator animator;
     public Text text;
 
+    private AudioSource audioSource;
+
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         text = guiObject.GetComponentInChildren<Text>();
         text.enabled = false;
     }
@@ -29,6 +32,7 @@ public class OnTriggerLoadScene : MonoBehaviour
             text.enabled = true;
             if (Input.GetButtonDown("Use"))
             {
+                audioSource.Play();
                 StartCoroutine(FadeThenLoadScene());
             }
         }

@@ -5,8 +5,14 @@ using UnityEditor;
 
 public class Item : MonoBehaviour
 {
+    public enum Type
+    {
+        Support = 0,
+        Offensive
+    }
+
     public int id;
-    public string type; // either "support" or "offensive", for now
+    public Type type; // either "support" or "offensive", for now
     public string itemName;
     public string menuName; // how name is displayed in menus
     public string description;
@@ -14,7 +20,6 @@ public class Item : MonoBehaviour
     public Sprite avatar;
     public GameObject iconPrefab;
     public GameObject getPrefab; // prefab associated with "ItemGet" animation
-
     // dHP, dFP, dStrength, dDefense, dMagicAttack, dMagicDefense
     // public int[] attributes = new int[6];
 
@@ -33,7 +38,7 @@ public class Item : MonoBehaviour
     public Item() { }
 
     public Item(int id, string itemName, string menuName,
-        string description, string type = "")
+        string description, Type type = Type.Support)
     {
         this.id = id;
         this.type = type;

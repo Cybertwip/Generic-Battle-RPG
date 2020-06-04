@@ -6,7 +6,7 @@ using TMPro;
 using AssemblyCSharp.Assets.Scripts;
 using System.Linq;
 
-public enum PlayerAction { Melee, Special, Item, Defend } //@TODO move to self contained enum class
+public enum PlayerAction { Melee, Special, Item, Defend, None } //@TODO move to self contained enum class //appended `Fireball` 05/21/2020 @ 23:36
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
 
 public class BattleManager : MonoBehaviour
@@ -16,6 +16,11 @@ public class BattleManager : MonoBehaviour
     private Dictionary<IPartyMemberBattleActions, PlayerAction> TurnKeyMap = new Dictionary<IPartyMemberBattleActions, PlayerAction>();
     private List<IPartyMemberBattleActions> TurnList = new List<IPartyMemberBattleActions>();
 
+    private List<IPartyMemberBattleActions> FinishedTurnList = new List<IPartyMemberBattleActions>();
+
+
+    private Dictionary<IPartyMemberBattleActions, string> TurnItemKeyMap = new Dictionary<IPartyMemberBattleActions, string>();
+    private Dictionary<IPartyMemberBattleActions, SpecialAttack.Attack> SpecialKeyMap = new Dictionary<IPartyMemberBattleActions, SpecialAttack.Attack>();
 
     IPartyMemberBattleActions currentPerformingCharacter;
 
@@ -25,9 +30,23 @@ public class BattleManager : MonoBehaviour
         TurnList.Add(member);
     }
 
+    public void SubmitTurn(IPartyMemberBattleActions member, PlayerAction action, SpecialAttack.Attack attack)
+    {
+        TurnKeyMap[member] = action;
+        TurnList.Add(member);
+        SpecialKeyMap[member] = attack;
+    }
+
+    public void SubmitTurn(IPartyMemberBattleActions member, PlayerAction action, string parameter)
+    {
+        TurnKeyMap[member] = action;
+        TurnList.Add(member);
+
+        TurnItemKeyMap[member] = parameter;
+    }
     public void PerformTurn()
     {
-        var lastCharacter = TurnList.Last();
+        var lastCharacter = TurnList.First();
         switch (TurnKeyMap[lastCharacter])
         {
             case PlayerAction.Defend:
@@ -35,7 +54,9 @@ public class BattleManager : MonoBehaviour
                 break;
 
             case PlayerAction.Item:
-                //lastCharacter.Item();
+
+                lastCharacter.Item(TurnItemKeyMap[lastCharacter]);
+
                 break;
 
             case PlayerAction.Melee:
@@ -44,13 +65,14 @@ public class BattleManager : MonoBehaviour
 
 
             case PlayerAction.Special:
-                lastCharacter.Special();
+                lastCharacter.Special(SpecialKeyMap[lastCharacter]);
                 break;
         }
 
         currentPerformingCharacter = lastCharacter;
 
         TurnList.Remove(currentPerformingCharacter);
+        FinishedTurnList.Add(currentPerformingCharacter);
     }
 
     // BattleMenu
@@ -151,14 +173,19 @@ public class BattleManager : MonoBehaviour
 
         TurnKeyMap.Clear();
         TurnList.Clear();
-
-        // player chooses an action from a button
-        //
     }
 
     void EnemyTurn()
     {
         battleMenu.SetActive(false);
+
+        foreach(var partyMember in FinishedTurnList)
+        {
+            partyMember.OnBattleLoopEnd();
+        }
+
+        FinishedTurnList.Clear();
+
         PlayerTurn();
     }
 

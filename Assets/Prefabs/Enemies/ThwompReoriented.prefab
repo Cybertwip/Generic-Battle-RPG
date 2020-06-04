@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8656238629115303652}
   - component: {fileID: 517181811981305917}
+  - component: {fileID: 8018927648815918210}
   m_Layer: 0
   m_Name: ThwompReoriented
   m_TagString: Untagged
@@ -54,6 +55,19 @@ MonoBehaviour:
   maxFP: 50
   currentHP: 200
   currentFP: 50
+--- !u!65 &8018927648815918210
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2435548344596349724}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 4, y: 4, z: 2}
+  m_Center: {x: 0, y: 2, z: 0}
 --- !u!1 &5372641230314081215
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,6 +165,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8656238629115303652}
     m_Modifications:
+    - target: {fileID: 1111056532, guid: 1ed1d07d615b84641b6129309e9db2a2, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1393113510, guid: 1ed1d07d615b84641b6129309e9db2a2, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 122175794169709885, guid: 1ed1d07d615b84641b6129309e9db2a2,
         type: 3}
       propertyPath: data.Target.meshFilter

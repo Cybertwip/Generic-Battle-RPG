@@ -5,6 +5,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using AssemblyCSharp.Assets.Scripts;
+using System.Linq;
+using System;
+using UnityEditor.Build.Content;
 //using UnityEditor.Animations;
 
 //public enum ControlState { PLATFORMING, BATTLE }
@@ -19,7 +22,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public Button fireballButton;
     public Button attackButton;
     public Button defendButton;
-    public Button itemButton;
+    public List<Button> itemButtons = new List<Button>();
     // Anim Controllers
     //public RuntimeAnimatorController platformingController;
     //public RuntimeAnimatorController battleController;
@@ -30,7 +33,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public List<Transform> rangedTargets;
     public List<Transform> jumpTargets;
     // party
-    private GameObject luigiPrefab;
+    //private GameObject luigiPrefab;
     // flags, targets, etc.
     //public GameObject signal; // make visible when timed hit is active, for debug purposes
     private bool doTimedHit;
@@ -45,15 +48,28 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     bool mjaDownA;
     bool mjaUpB;
     bool mjaDownB;
+    bool mjaWait;
+    bool mjaStandUp;
     bool mjaJumpBack;
+    // fireball flags
+    bool fba01;
+
+    private AudioClip sfxClip;
+    private AudioSource audioSource;
 
     private BattleManager battleManager;
 
+    public PlayerAction PlayerAction { get; set; }
     public BattleStatus BattleStatus { get; set; }
+
+    private bool performingItem = false;
+    private GameObject performingItemGO = null;
+    private string currentPerformingItem = "";
 
     void Start()
     {
         Application.targetFrameRate = 60;
+        audioSource = GetComponent<AudioSource>(); 
         SetupControllerState();
 
         if (animator.GetInteger("intCntrlState") == 1)
@@ -66,9 +82,15 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
             // Add listeners to buttons:
             attackButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Melee); });
-            jumpButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Special); });
+            jumpButton.onClick.AddListener(call: delegate { RegisterSpecialWithBattleManager(PlayerAction.Special, SpecialAttack.Attack.Jump); });
+            fireballButton.onClick.AddListener(call: delegate { RegisterSpecialWithBattleManager(PlayerAction.Special, SpecialAttack.Attack.Fire); }); //05/21/2020 @ 23:44
             defendButton.onClick.AddListener(call: delegate { RegisterWithBattleManager(PlayerAction.Defend); });
 
+            foreach (var button in itemButtons)
+            {
+                button.onClick.AddListener(call: delegate { RegisterItemWithBattleManager(button.GetComponentInChildren<TMP_Text>().text); });
+
+            }
         }
     }
 
@@ -86,98 +108,191 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         timer = 0f;
         doTimedHit = false;
         failedTimedHit = false;
+        mjaWait = false;
+        mjaStandUp = false;
         mjaJumpBack = false;
-        luigiPrefab = GameObject.FindGameObjectWithTag("Player"); // there is only one party member right now
+        fba01 = false;
+        //luigiPrefab = GameObject.FindGameObjectWithTag("Player"); // there is only one party member right now
         //signal = GameObject.Instantiate(signal, new Vector3(-2f, 1.5f, 7f), Quaternion.identity);
         //signal.SetActive(false);
     }
 
-    void FixedUpdate()
+    void Update()
     {
-		if (animator.GetInteger("intCntrlState") == 1)
-		{
-			//+----------------------------------------------------------------------------+
-			//|                                     JUMP                                   |
-			//+----------------------------------------------------------------------------+
-			if (animator.GetBool("sm_Magic_JumpAttack"))
-			{
-				//01 jump straight up
-				if (mjaUpA == true)
-				{
-					LerpOverTime(playerSpawnPoint.position, playerSpawnPoint.position + Vector3.up * 10f, 0.5f);
-					if (lerpTime >= 0.5f) // move directly over target (in the plane)
-					{
-						lerpTime = 0f;
-						mjaUpA = false;
-						mjaDownA = true;
-						AnimTrigger("MJA01"); // turns this on, all other triggers off
-						transform.position = target.position + Vector3.up * 10f;
-					}
-				}
-				//02 land on target
-				if (mjaDownA == true)
-				{
-					LerpOverTime(target.position + Vector3.up * 10f, target.position, 0.5f);
-					// play falling sound
-					if (lerpTime >= 0.366f) { AnimTrigger("MJA02"); }
-					if (lerpTime >= 0.5f)
-					{
-						lerpTime = 0f;
-						mjaDownA = false;
-						mjaUpB = true;
-						animator.SetBool("boolTimedHit", false); // TEMPORARY, puts us in sm_Jump_Finish
-					}
-				}
-				//03A jump straight up again
-				if (animator.GetBool("boolTimedHit") == true)
-				{
-					//jump straight up again, implementation DNE in state machine yet
-				}
+        if (animator.GetInteger("intCntrlState") == 1)
+        {
+            //+----------------------------------------------------------------------------+
+            //|                                     JUMP                                   |
+            //+----------------------------------------------------------------------------+
+            if (animator.GetBool("sm_Magic_JumpAttack") && PlayerAction != PlayerAction.None) // note to self: this is a bool defined in the Editor using `SubStateMonitor.cs`. It is true as long as we are inside the substate machine. I learned a few months ago that you cannot "nest" substate machines, so don't try!
+            {
+                //01 jump straight up
+                if (mjaUpA == true)
+                {
+                    LerpOverTime(playerSpawnPoint.position, playerSpawnPoint.position + Vector3.up * 10f, 0.5f);
+                    if (lerpTime >= 0.5f) // move directly over target (in the plane)
+                    {
+                        lerpTime = 0f;
+                        mjaUpA = false;
+                        mjaDownA = true;
+                        AnimTrigger("MJA01"); // turns this on, all other triggers off
+                        transform.position = target.position + Vector3.up * 10f;
+                    }
+                }
+                //02 land on target
+                if (mjaDownA == true)
+                {
+                    LerpOverTime(target.position + Vector3.up * 10f, target.position, 0.5f); // falling 10 units onto enemy
+                    if (lerpTime >= 0.5f)
+                    {
+                        animator.speed = 0.5f;
+                        AnimTrigger("MJA02");
+                        lerpTime = 0f;
+                        mjaDownA = false;
+                        mjaWait = true;
+                    }
+                }
+                //02.5 wait (better would be to stretch landing animation to 0.25 seconds)
+                if (mjaWait == true)
+                {
+                    lerpTime += Time.deltaTime;
+                    if (lerpTime >= 0.25f)
+                    {
+                        mjaWait = false;
+                        mjaUpB = true; // not used yet, only exists in two lines in this script, intention was for use with timed jumps
+                        animator.speed = 1f;
+                        AnimTrigger("triggerTimedHitFailed"); // TEMPORARY, puts us in sm_Jump_Finish
+                    }
+                }
+                //02 land on target
+                /*
+                if (mjaDownA == true)
+                {
+                    LerpOverTime(target.position + Vector3.up * 10f, target.position, 0.5f); // falling 10 units onto enemy
+                    // (play falling sound)
+                    if (lerpTime >= 0.366f) { AnimTrigger("MJA02"); }
+                    if (lerpTime >= 0.5f)
+                    {
+                        lerpTime = 0f;
+                        mjaDownA = false;
+                        mjaUpB = true; // not used yet, only exists in two lines in this script, intention was for use with timed jumps
+                        animator.SetBool("boolTimedHit", false); // TEMPORARY, puts us in sm_Jump_Finish
+                    }
+                }
+                */
+                //03 jump straight up again, not implemented yet
+                if (mjaUpB == true)
+                {
+                    if (animator.GetBool("boolTimedHit") == true) // in the tree, not implemented
+                    {
+                        Debug.LogError("It's Spencer: We should not be here, this is not implemented yet!");
+                        //jump straight up again, state variables DNE in state machine yet
+                    }
+                    else
+                    {
+                        mjaUpB = false;
+                        mjaStandUp = true;
+                    }
+                }
 
-				if (animator.GetCurrentAnimatorStateInfo(0).IsName("Jump_Start_Finish") && mjaJumpBack == false) mjaJumpBack = true;
+                if (mjaStandUp == true)
+                {
+                    if (lerpTime < 12f / 30f) lerpTime += Time.deltaTime; // duration of Luigi's "Jump_start" animation
+                    else
+                    {
+                        mjaStandUp = false;
+                        mjaJumpBack = true;
+                        lerpTime = 0f;
+                    }
+                }
 
-				if (mjaJumpBack == true && lerpTime <= 24f / 60f)
-				{
-					//LerpOverTime(target.position, playerSpawnPoint.position, 24f / 60f);
-					transform.position = ParabolicTrajectory(target.position, playerSpawnPoint.position, target.position.y, 24f / 60f);
-					lerpTime += Time.deltaTime;
-					if (lerpTime >= 24f / 60f)
-					{
-						transform.position = playerSpawnPoint.position; // to ensure alignment
-						lerpTime = 0f;
-						mjaJumpBack = false;
+                if (mjaJumpBack == true && lerpTime <= 24f / 60f)
+                {
+                    //LerpOverTime(target.position, playerSpawnPoint.position, 24f / 60f);
+                    transform.position = ParabolicTrajectory(target.position, playerSpawnPoint.position, target.position.y, lerpTime, 24f / 60f);
+                    lerpTime += Time.deltaTime;
+                    if (lerpTime > 24f / 60f)
+                    {
+                        transform.position = playerSpawnPoint.position; // to ensure alignment
+                        lerpTime = 0f;
+                        mjaJumpBack = false;
                         BattleStatus = BattleStatus.Done;
-					}
-				}
-			}
+                        PlayerAction = PlayerAction.None;
+                    }
+                }
+            }
 
-			//+----------------------------------------------------------------------------+
-			//|                                     LERP                                   |
-			//+----------------------------------------------------------------------------+
-			if (animator.GetBool("boolRunToTarget") == true)
-			{
-				LerpOverTime(playerSpawnPoint.position, target.position, 0.5f);
-				if (lerpTime >= 0.5f)
-				{
-					animator.SetBool("boolRunToTarget", false);
-					lerpTime = 0f;
-				}
-			}
+            //+----------------------------------------------------------------------------+
+            //|                                   FIREBALL                                 |
+            //+----------------------------------------------------------------------------+
 
-			if (animator.GetCurrentAnimatorStateInfo(0).IsName("Run_Back_Home")) //yes, I want him to run backwards, its funny
-			{
-                if(BattleStatus == BattleStatus.Performing)
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Magic") && PlayerAction != PlayerAction.None)
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                if ((t >= 84f / 120f && t <= 99f / 120f) && fba01 == false)
+                {
+                    fba01 = true;
+                    animator.speed = 0f; // pause "magic" animation
+                    lerpTime = 0f; //resetting, just in case
+                }
+
+                if (animator.speed == 0f)
+                {
+                    if (lerpTime < 6f)
+                    {
+                        // TODO: launch fireball
+                        if ((lerpTime % 0.2f) > 0.19f || (lerpTime % 0.2f) < 0.01f) audioSource.PlayOneShot(sfxClip); // this is only for demo purposes
+                    }
+                    else if (lerpTime >= 7f)
+                    {
+                        animator.speed = 1f; // continue "magic" animation where it left off
+                    }
+                    lerpTime += Time.deltaTime;
+                }
+
+                if (t >= 0.95f) // this is skipping a lot when t >= 0.99, etc.
+                {
+                    BattleStatus = BattleStatus.Done;
+                    PlayerAction = PlayerAction.None;
+                    lerpTime = 0f;
+                    // reset action vars:
+                    fba01 = false;
+                }
+                //do stuff
+            }
+
+            //+----------------------------------------------------------------------------+
+            //|                                     LERP                                   |
+            //+----------------------------------------------------------------------------+
+            if (animator.GetBool("boolRunToTarget") == true)
+            {
+                LerpOverTime(playerSpawnPoint.position, target.position, 0.375f);
+                if (lerpTime >= 0.375f)
+                {
+                    animator.SetBool("boolRunToTarget", false);
+                    if (PlayerAction.ToString() == "Melee") AnimTrigger("triggerFirstPunch");
+                    lerpTime = 0f;
+                }
+            }
+
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Run_Back_Home")) //yes, I want him to run backwards, its funny
+            {
+                if (BattleStatus == BattleStatus.Performing)
                 {
                     animator.SetBool("boolRunBackHome", true);
 
                     if (animator.GetBool("boolRunBackHome") == true)
                     {
-                        LerpOverTime(target.position, playerSpawnPoint.position, 0.5f);
-                        if (lerpTime >= 0.5f)
+                        LerpOverTime(target.position, playerSpawnPoint.position, 0.375f);
+                        if (lerpTime >= 0.375f)
                         {
                             animator.SetBool("boolRunBackHome", false);
                             lerpTime = 0f;
                             BattleStatus = BattleStatus.Done;
+                            PlayerAction = PlayerAction.None;
+                            // reset timed-hit anim parameter (there is a bug in the melee action where timed-hit always succeeds if we don't):
+                            animator.SetBool("boolTimedHit", false);
                         }
 
                     }
@@ -186,56 +301,238 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
 
             }
 
-			// reset flags when action sequence is over
-			if ((failedTimedHit == true || doTimedHit == true) && animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
-			{
-				failedTimedHit = false;
-				doTimedHit = false;
-			}
+            // reset flags when action sequence is over
+            if ((failedTimedHit == true || doTimedHit == true) && animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
+            {
+                failedTimedHit = false;
+                doTimedHit = false;
+            }
 
+            /*
 			if (animator.GetCurrentAnimatorStateInfo(0).IsName("Defend"))
 			{
 				// DONT FORGET TO PUT THE EXIT ANIMATION IN LATER!
-				AnimationDefendStart();
-			}
-		}
-    }
+                if(BattleStatus  == BattleStatus.Performing)
+                {
+                    AnimationDefendStart();
+                }
+            }*/
+        
+            //+----------------------------------------------------------------------------+
+            //|                               PHYSICAL ATTACK                              |
+            //+----------------------------------------------------------------------------+
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("First_Punch"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                // handle player's timed hit input (if there is any)
 
-    void Update()
-    {
-		if (animator.GetInteger("intCntrlState") == 1)
-		{
-			//+----------------------------------------------------------------------------+
-			//|                               PHYSICAL ATTACK                              |
-			//+----------------------------------------------------------------------------+
-			if (animator.GetCurrentAnimatorStateInfo(0).IsName("First_Punch"))
-			{
-				float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-				// handle player's timed hit input (if there is any)
+                // prevents player from succeeding by spamming buttons:
+                if (t < 29f / 83f && Input.GetButtonDown("Jump"))
+                    failedTimedHit = true;
 
-				// prevents player from succeeding by spamming buttons:
-				if (t < 29f / 83f && Input.GetButtonDown("Jump"))
-					failedTimedHit = true;
+                if ((t >= 29f / 83f && t < 57f / 83f) && Input.GetButtonDown("Jump") && failedTimedHit == false)
+                {
+                    Debug.Log("triggerTimedHit");
+                    AnimTrigger("triggerTimedHit");
+                    //doTimedHit = true;
+                }
 
-				if ((t >= 29f / 83f && t < 57f / 83f) && Input.GetButtonDown("Jump") && failedTimedHit == false)
-				{
-					Debug.Log("triggerTimedHit");
-					doTimedHit = true;
-				}
+                /*
+                if (doTimedHit == true)
+                {
+                    animator.SetBool("boolTimedHit", true);
+                    doTimedHit = false;
+                }
+                */
 
-				if (doTimedHit == true)
-				{
-					animator.SetBool("boolTimedHit", true);
-					doTimedHit = false;
-				}
+                // deal with timed-hit signal: (all signal debug lines work)
+                //if (t >= 29f / 83f && t < 57f / 83f && signal.activeInHierarchy == false) signal.SetActive(true);
+                //if (t >= 57f / 83f && signal.activeInHierarchy == true) signal.SetActive(false);
+            }
 
-				// deal with timed-hit signal: (all signal debug lines work)
-				//if (t >= 29f / 83f && t < 57f / 83f && signal.activeInHierarchy == false) signal.SetActive(true);
-				//if (t >= 57f / 83f && signal.activeInHierarchy == true) signal.SetActive(false);
-			}
+            //+----------------------------------------------------------------------------+
+            //|                                CONSUME ITEM                                |
+            //+----------------------------------------------------------------------------+
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ConsumeItem"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
 
-			//else if (signal.activeInHierarchy == true) signal.SetActive(false); // in case we are already out of punch animation	
-		}
+                if (t >= 140f / 216f) // t >= 155f/ 215f
+                {
+                    if (!performingItem)
+                    {
+                        performingItem = true;
+
+                        var inventory = Inventory.Instance;
+
+                        var item = inventory.Items.Where(i => i.Name == currentPerformingItem).First().GetPath;
+
+                        GameObject prefab = Resources.Load(item) as GameObject;
+
+                        GameObject newObj =
+                            Instantiate(prefab,
+                                        playerSpawnPoint.position + new Vector3(0, 2.75f, 0.5f),
+                                        Camera.main.transform.rotation);
+
+                        GameObject toRemove = null;
+
+                        foreach (var listItem in inventory.itemList)
+                        {
+                            var itemComponent = listItem.GetComponent<Item>();
+                            if (itemComponent.itemName == currentPerformingItem)
+                            {
+                                toRemove = listItem;
+                                break;
+                            }
+                        }
+
+                        inventory.itemList.Remove(toRemove);
+
+                        newObj.transform.SetParent(playerSpawnPoint);
+
+                        Destroy(newObj, 1.6f);
+
+                    }
+                }
+            }
+
+            //+----------------------------------------------------------------------------+
+            //|                                THROW ITEM                                  |
+            //+----------------------------------------------------------------------------+
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("ThrowItem"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                if (t >= 54f / 90f)
+                {
+                    if (!performingItem)
+                    {
+                        performingItem = true;
+
+                        var inventory = Inventory.Instance;
+
+                        var item = inventory.Items.Where(i => i.Name == currentPerformingItem).First().IconPath;
+
+                        GameObject prefab = Resources.Load(item) as GameObject;
+
+                        GameObject newObj =
+                            Instantiate(prefab,
+                                        playerSpawnPoint.position + new Vector3(0, 1.0f, 1.5f),
+                                        Camera.main.transform.rotation);
+
+                        GameObject toRemove = null;
+
+                        foreach (var listItem in inventory.itemList)
+                        {
+                            var itemComponent = listItem.GetComponent<Item>();
+                            if (itemComponent.itemName == currentPerformingItem)
+                            {
+                                toRemove = listItem;
+                                break;
+                            }
+                        }
+
+                        //inventory.itemList.Remove(toRemove);
+
+                        //newObj.transform.SetParent(playerSpawnPoint);
+
+                        lerpTime = 0;
+
+                        performingItemGO = newObj;
+                    }
+                }
+            }
+
+            //+----------------------------------------------------------------------------+
+            //|                                 THROW ITEM                                 |
+            //+----------------------------------------------------------------------------+
+
+            if (performingItem)
+            {
+                var itemType = Inventory.Instance.GetItemTypeByName(currentPerformingItem);
+
+                if(itemType == global::Item.Type.Offensive)
+                {
+
+                    if(performingItemGO != null && !ReferenceEquals(performingItemGO, null) )
+                    {
+
+                        target = rangedTargets[0]; // temporary, no selection function yet, just one enemy
+
+
+                        var newTarget = new Vector3();
+                        newTarget.x = target.position.x;
+                        newTarget.y = target.position.y;
+                        newTarget.z = target.position.z;
+
+                        SimulateProjectile(performingItemGO.transform,
+                                           performingItemGO.transform.position,
+                                           newTarget);
+
+                        //performingItemGO.transform.position = ParabolicTrajectory(playerSpawnPoint.position, target.position, target.position.y + 4, lerpTime, 2f);
+
+
+                    }
+                    else
+                    {
+                        performingItemGO = null;
+                        lerpTime = 0;
+
+                        performingItem = false;
+
+                        BattleStatus = BattleStatus.Done;
+                        PlayerAction = PlayerAction.None;
+
+                    }
+
+                }
+            }
+
+            //+----------------------------------------------------------------------------+
+            //|                                 BATTLE IDLE                                |
+            //+----------------------------------------------------------------------------+
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Battle_Idle"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                switch (PlayerAction)
+                {
+                    case PlayerAction.Item:
+                        {
+                            if (performingItem && t > 2 && (performingItemGO == null || ReferenceEquals(performingItemGO, null)))
+                            {
+                                var itemType = Inventory.Instance.GetItemTypeByName(currentPerformingItem);
+
+                                if(itemType == global::Item.Type.Support)
+                                {
+                                    BattleStatus = BattleStatus.Done;
+                                    PlayerAction = PlayerAction.None;
+                                    performingItem = false;
+                                    currentPerformingItem = "";
+                                }
+
+                            }
+                        }
+                        break;
+
+                }
+
+            }
+            //+----------------------------------------------------------------------------+
+            //|                                   DEFEND                                   |
+            //+----------------------------------------------------------------------------+
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Defend"))
+            {
+                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                if (t >= 1f) //(t >= 30f / 30f) changed 05/21/2020 @ 21:58
+                {
+                    BattleStatus = BattleStatus.Done;
+                }
+            }
+
+            //else if (signal.activeInHierarchy == true) signal.SetActive(false); // in case we are already out of punch animation	
+        }
     }
 
     //+----------------------------------------------------------------------------+
@@ -262,6 +559,57 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     void AnimationDefendEnd()
     {
         animator.speed = 1f;
+    }
+
+
+
+    bool SimulateProjectile(Transform projectile, Vector3 origin, Vector3 target)
+    {
+        const float gravity = 9;
+        const float firingAngle = 45;
+
+        // Move projectile to the position of throwing object + add some offset if needed.
+        projectile.position = origin + new Vector3(0, 0.0f, 0);
+
+        // Calculate distance to target
+        float target_Distance = Vector3.Distance(projectile.position, target);
+
+        // Calculate the velocity needed to throw the object to the target at specified angle.
+        float projectile_Velocity = target_Distance / (Mathf.Sin(2 * firingAngle * Mathf.Deg2Rad) / gravity);
+
+        // Extract the X  Y componenent of the velocity
+        float Vx = Mathf.Sqrt(projectile_Velocity) * Mathf.Cos(firingAngle * Mathf.Deg2Rad);
+        float Vy = Mathf.Sqrt(projectile_Velocity) * Mathf.Sin(firingAngle * Mathf.Deg2Rad);
+
+        // Calculate flight time.
+        float flightDuration = target_Distance / Vx;
+
+        Quaternion oldRotation = new Quaternion(projectile.rotation.x,
+                                                projectile.rotation.y,
+                                                projectile.rotation.z,
+                                                projectile.rotation.w);
+
+        // Rotate projectile to face the target.
+        projectile.rotation = Quaternion.LookRotation(target - projectile.position);
+
+        float elapse_time = 0;
+
+        if (elapse_time < flightDuration)
+        {
+            float deltaTime = Time.deltaTime;
+
+            projectile.Translate(0, (Vy - (gravity * elapse_time)) * deltaTime, Vx * deltaTime);
+
+            projectile.rotation = oldRotation;
+
+            elapse_time += deltaTime;
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     //+----------------------------------------------------------------------------+
@@ -293,7 +641,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
      * ANY ending point, the max height of the projectile, and the duration of time it should
      * take the projectile to traverse the arc.
     */
-    private Vector3 ParabolicTrajectory(Vector3 start, Vector3 end, float height, float duration)
+    private Vector3 ParabolicTrajectory(Vector3 start, Vector3 end, float height, float lerp, float duration)
     {
         Vector3 direction = new Vector3((end - start).x, 0f, (end - start).z);
 
@@ -301,8 +649,8 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         float Ye = end.y;
         float Ym = height + 1f;
         float sqrtYs = Mathf.Sqrt((Ym - Ys) / (Ym - Ye)); //useful expression
-        float Xval = start.x + direction.x * lerpTime / duration;
-        float Zval = start.z + direction.z * lerpTime / duration;
+        float Xval = start.x + direction.x * lerp / duration;
+        float Zval = start.z + direction.z * lerp / duration;
         float Yval = 0;
 
         //Debug.Log("xDir is " + Mathf.Abs(direction.x));
@@ -359,6 +707,13 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     //+------------------------------------------------------------------------------+
 
 
+    public UnityEngine.Events.UnityAction RegisterSpecialWithBattleManager(PlayerAction action, SpecialAttack.Attack attack)
+    {
+
+        battleManager.SubmitTurn(this, action, attack);
+        return null;
+    }
+
 
     public UnityEngine.Events.UnityAction RegisterWithBattleManager(PlayerAction action)
     {
@@ -367,21 +722,49 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         return null;
     }
 
+    public UnityEngine.Events.UnityAction RegisterItemWithBattleManager(string itemName, string itemType = "")
+    {
+
+        battleManager.SubmitTurn(this, PlayerAction.Item, itemName);
+        return null;
+    }
+
+
 
     //+------------------------------------------------------------------------------+
     //|                          BUTTON EVENTS / "ACTIONS"                           |
     //+------------------------------------------------------------------------------+
 
     // JUMP ATTACK
-    public UnityEngine.Events.UnityAction Special()
+    public UnityEngine.Events.UnityAction Special(SpecialAttack.Attack attack)
     {
         BattleStatus = BattleStatus.Performing;
+        PlayerAction = PlayerAction.Special;
 
         battleMenu.SetActive(false);
-        if (jumpTargets.Count == 1) target = jumpTargets[0];
-        else target.position = Vector3.zero;
-        AnimTrigger("triggerJump");
-        mjaUpA = true;
+
+        switch (attack)
+        {
+            case SpecialAttack.Attack.Jump:
+                    if (jumpTargets.Count == 1) target = jumpTargets[0]; // temporary, no selection function yet, just one enemy
+                    else target.position = Vector3.zero; // weird placement... 05/20/2020 @23:54
+                    AnimTrigger("triggerJump");
+                    mjaUpA = true;
+                break;
+
+            case SpecialAttack.Attack.Fire:
+                sfxClip = Resources.Load<AudioClip>("SFX/smrpg_mario_fireball");
+                if (rangedTargets.Count != 0)
+                {
+                    target = rangedTargets[0]; // temporary, no selection function yet, just one enemy
+                    AnimTrigger("triggerMagic"); // all of Luigi's Magic attacks use the same "windup" animation //05/21/2020 @23:59
+                }
+                else { Debug.LogError("Hey, it's Spencer...there is supposed to be a rangedTarget on the enemy, but there isn't. Make one in the prefab and call it \"rangedTarget\"!"); }
+
+                break;
+        }
+
+
         return null;
     }
 
@@ -389,6 +772,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     public UnityEngine.Events.UnityAction Melee()
     {
         BattleStatus = BattleStatus.Performing;
+        PlayerAction = PlayerAction.Melee;
 
         battleMenu.SetActive(false);
         if (meleeTargets.Count == 1) target = meleeTargets[0];
@@ -401,11 +785,63 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
     // DEFEND
     public UnityEngine.Events.UnityAction Defend()
     {
+        PlayerAction = PlayerAction.Defend;
+        BattleStatus = BattleStatus.Performing;
+
         battleMenu.SetActive(false);
         AnimTrigger("triggerDefend");
         return null;
     }
 
+    // ITEM
+    public UnityEngine.Events.UnityAction Item(string name)
+    {
+        BattleStatus = BattleStatus.Performing;
+        PlayerAction = PlayerAction.Item;
+
+        currentPerformingItem = name;
+        performingItem = false;
+
+        var performingItemType = Inventory.Instance.GetItemTypeByName(name);
+        battleMenu.SetActive(false);
+
+        switch (performingItemType)
+        {
+            case global::Item.Type.Support:
+                AnimTrigger("triggerConsume");
+                break;
+            case global::Item.Type.Offensive:
+                AnimTrigger("triggerThrow");
+                break;
+        }
+        return null;
+    }
+
+    public UnityEngine.Events.UnityAction OnBattleLoopEnd()
+    {
+        switch (PlayerAction)
+        {
+            case PlayerAction.Defend:
+                AnimTrigger("triggerDefendEnd");
+
+                /*
+                StartCoroutine(ExecuteAfterTime(2.0f, () =>
+                {
+                    PlayerAction = PlayerAction.None;
+                    AnimationDefendEnd();
+                }));*/
+                break;
+        }
+
+        return null;
+    }
+
+    /*
+    IEnumerator ExecuteAfterTime(float time, Action task)
+    {
+        yield return new WaitForSeconds(time);
+        task();
+    }*/
     //+------------------------------------------------------------------------------+
     //|                                    SETUP                                     |
     //+------------------------------------------------------------------------------+
@@ -430,11 +866,26 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             GameObject[] targets = GameObject.FindGameObjectsWithTag("Target");
             foreach (GameObject obj in targets)
             {
-                if (obj.name == "MeleeTarget") meleeTargets.Add(obj.transform);
-                else if (obj.name == "RangedTarget") rangedTargets.Add(obj.transform);
-                else if (obj.name == "JumpTarget") jumpTargets.Add(obj.transform);
-                else if (obj.name == "SpawnPlayer") playerSpawnPoint = obj.transform;
-                else if (obj.name == "SpawnEnemy") enemySpawnPoint = obj.transform;
+                if (obj.name == "MeleeTarget")
+                {
+                    meleeTargets.Add(obj.transform);
+                }
+                else if (obj.name == "RangedTarget")
+                {
+                    rangedTargets.Add(obj.transform);
+                }
+                else if (obj.name == "JumpTarget")
+                {
+                    jumpTargets.Add(obj.transform);
+                }
+                else if (obj.name == "SpawnPlayer")
+                {
+                    playerSpawnPoint = obj.transform;
+                }
+                else if (obj.name == "SpawnEnemy")
+                {
+                    enemySpawnPoint = obj.transform;
+                }
                 else Debug.LogError("ERROR: Unrecognized target name. Check spelling.");
             }
         }
@@ -486,10 +937,21 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         // handle itemButton
         if (battleMenu.transform.GetChild(3).GetChild(2).GetChild(0).childCount == 0)
         {
-            itemButton = null; //takes care of case where there are no items
         }
         else
-            battleMenu.transform.GetChild(3).GetChild(2).GetChild(0).GetChild(0).GetComponent<Button>();
+        {
+            var transform = battleMenu.transform.GetChild(3).GetChild(2).GetChild(0).transform;
+            List<Transform> children = transform.Cast<Transform>().ToList();
+
+            foreach (var child in children)
+            {
+                var button = child.GetComponent<Button>();
+                itemButtons.Add(button);
+
+            }
+
+        }
+
     }
 
     // debug only
@@ -499,7 +961,7 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
         Debug.Log(fireballButton.GetComponentInChildren<TMP_Text>().text);
         Debug.Log(attackButton.GetComponentInChildren<TMP_Text>().text);
         Debug.Log(defendButton.GetComponentInChildren<TMP_Text>().text);
-        if (itemButton != null) Debug.Log(itemButton.GetComponentInChildren<TMP_Text>().text);
+        if (itemButtons.Count == 0) Debug.Log("Item button");
         else Debug.LogError("ERROR: LuigiAnimationEvents::itemButton = null. No item means no item button.");
     }
 
@@ -510,5 +972,6 @@ public class LuigiAnimEvents : MonoBehaviour, IPartyMemberBattleActions
             if (p.type == AnimatorControllerParameterType.Trigger)
                 animator.ResetTrigger(p.name);
         animator.SetTrigger(triggerName);
+        //Debug.Log("triggered " + triggerName);
     }
 }
