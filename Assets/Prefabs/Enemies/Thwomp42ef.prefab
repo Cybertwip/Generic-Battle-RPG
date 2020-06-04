@@ -72,6 +72,7 @@ GameObject:
   - component: {fileID: 5289287718708596805}
   - component: {fileID: -5908674042435833023}
   - component: {fileID: -1446133698427286133}
+  - component: {fileID: 5024185521214311442}
   m_Layer: 0
   m_Name: Thwomp42ef
   m_TagString: Untagged
@@ -156,6 +157,20 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &5024185521214311442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896869414946143417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9257b0366ce05e844a19d98f296d7c18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: -1446133698427286133}
+  enemyStatus: {fileID: 5289287718708596805}
 --- !u!1 &1390162064012102643
 GameObject:
   m_ObjectHideFlags: 0
