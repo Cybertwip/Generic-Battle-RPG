@@ -1769,6 +1769,7 @@ GameObject:
   - component: {fileID: 8442571153103940146}
   - component: {fileID: 8589128988465563574}
   - component: {fileID: 7989354993607843573}
+  - component: {fileID: 4349502564897602435}
   m_Layer: 0
   m_Name: Luigi
   m_TagString: Player
@@ -1895,12 +1896,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   partyMemberName: Luigi
-  level: 1
-  damage: 20
-  maxHP: 100
-  maxFP: 50
-  currentHP: 100
-  currentFP: 50
 --- !u!114 &8442571153103940146
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2033,6 +2028,26 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4349502564897602435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8326184623609939726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62e0fa7196745409d9536100aae9d38b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerSpawnPoint: {fileID: 0}
+  enemySpawnPoint: {fileID: 0}
+  meleeTargets: []
+  rangedTargets: []
+  jumpTargets: []
+  battleMenu: {fileID: 0}
+  audioSource: {fileID: 0}
+  target: {fileID: 0}
 --- !u!1 &8684861548675657571
 GameObject:
   m_ObjectHideFlags: 0

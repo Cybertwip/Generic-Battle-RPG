@@ -75,38 +75,6 @@ public class Inventory : MonoBehaviour
                 GetPath = "Items/Prefabs/get_turd",
                 IconPath = "Items/Prefabs/icon_turd"
             });
-
-            var randomItem = Items.Last();
-
-            GameObject newObject = new GameObject();
-
-            var item = newObject.AddComponent<Item>();
-            item.id = -1;
-            item.type = randomItem.Type;
-            item.itemName = randomItem.Name;
-            item.menuName = randomItem.MenuName;
-            item.description = randomItem.Description;
-
-            itemList.Add(newObject);
-
-            DontDestroyOnLoad(newObject);
-
-
-            GameObject newObject2 = new GameObject();
-
-            randomItem = Items.First();
-
-
-            var item2 = newObject2.AddComponent<Item>();
-            item2.id = -1;
-            item2.type = randomItem.Type;
-            item2.itemName = randomItem.Name;
-            item2.menuName = randomItem.MenuName;
-            item2.description = randomItem.Description;
-
-            itemList.Add(newObject2);
-
-            DontDestroyOnLoad(newObject2);
         }
 
         else

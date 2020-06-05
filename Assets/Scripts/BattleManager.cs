@@ -3,48 +3,62 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
-using AssemblyCSharp.Assets.Scripts;
 using System.Linq;
 
 public enum PlayerAction { Melee, Special, Item, Defend, None } //@TODO move to self contained enum class //appended `Fireball` 05/21/2020 @ 23:36
-public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
+public enum BattleState { START, PLAYERTURNSUBMIT, ENEMYTURNSUBMIT, SUBMISSION, BATTLE, WON, LOST }
 
 public class BattleManager : MonoBehaviour
 {
-    private const int PARTY_MEMBERS_SIZE = 1;
+    private const int PLAYER_PARTY_MEMBERS_SIZE = 1;
+    private const int ENEMY_PARTY_MEMBERS_SIZE = 1;
 
-    private Dictionary<IPartyMemberBattleActions, PlayerAction> TurnKeyMap = new Dictionary<IPartyMemberBattleActions, PlayerAction>();
-    private List<IPartyMemberBattleActions> TurnList = new List<IPartyMemberBattleActions>();
+    private Dictionary<PartyMemberBattleActions, PlayerAction> TurnKeyMap = new Dictionary<PartyMemberBattleActions, PlayerAction>();
+    private Dictionary<PartyMemberBattleActions, Stats> StatsKeyMap = new Dictionary<PartyMemberBattleActions, Stats>();
+    private List<PartyMemberBattleActions> TurnList = new List<PartyMemberBattleActions>();
 
-    private List<IPartyMemberBattleActions> FinishedTurnList = new List<IPartyMemberBattleActions>();
+    private List<PartyMemberBattleActions> FinishedTurnList = new List<PartyMemberBattleActions>();
 
 
-    private Dictionary<IPartyMemberBattleActions, string> TurnItemKeyMap = new Dictionary<IPartyMemberBattleActions, string>();
-    private Dictionary<IPartyMemberBattleActions, SpecialAttack.Attack> SpecialKeyMap = new Dictionary<IPartyMemberBattleActions, SpecialAttack.Attack>();
+    private Dictionary<PartyMemberBattleActions, GameObject> PlayerParty = new Dictionary<PartyMemberBattleActions, GameObject>();
+    private Dictionary<PartyMemberBattleActions, GameObject> EnemyParty = new Dictionary<PartyMemberBattleActions, GameObject>();
 
-    IPartyMemberBattleActions currentPerformingCharacter;
+    private Dictionary<PartyMemberBattleActions, GameObject> GroupParties = new Dictionary<PartyMemberBattleActions, GameObject>();
 
-    public void SubmitTurn(IPartyMemberBattleActions member, PlayerAction action)
+
+
+    private Dictionary<PartyMemberBattleActions, string> TurnItemKeyMap = new Dictionary<PartyMemberBattleActions, string>();
+    private Dictionary<PartyMemberBattleActions, SpecialAttack.Attack> SpecialKeyMap = new Dictionary<PartyMemberBattleActions, SpecialAttack.Attack>();
+
+    PartyMemberBattleActions currentPerformingCharacter;
+
+    public void SubmitTurn(PartyMemberBattleActions member, PlayerAction action)
     {
         TurnKeyMap[member] = action;
         TurnList.Add(member);
+
+        StatsKeyMap[member] = GroupParties[member].GetComponent<Stats>();
     }
 
-    public void SubmitTurn(IPartyMemberBattleActions member, PlayerAction action, SpecialAttack.Attack attack)
+    public void SubmitTurn(PartyMemberBattleActions member, PlayerAction action, SpecialAttack.Attack attack)
     {
         TurnKeyMap[member] = action;
         TurnList.Add(member);
         SpecialKeyMap[member] = attack;
+
+        StatsKeyMap[member] = GroupParties[member].GetComponent<Stats>();
     }
 
-    public void SubmitTurn(IPartyMemberBattleActions member, PlayerAction action, string parameter)
+    public void SubmitTurn(PartyMemberBattleActions member, PlayerAction action, string parameter)
     {
         TurnKeyMap[member] = action;
         TurnList.Add(member);
 
         TurnItemKeyMap[member] = parameter;
+
+        StatsKeyMap[member] = GroupParties[member].GetComponent<Stats>();
     }
-    public void PerformTurn()
+    public KeyValuePair<PartyMemberBattleActions, PlayerAction> PerformTurn()
     {
         var lastCharacter = TurnList.First();
         switch (TurnKeyMap[lastCharacter])
@@ -73,6 +87,10 @@ public class BattleManager : MonoBehaviour
 
         TurnList.Remove(currentPerformingCharacter);
         FinishedTurnList.Add(currentPerformingCharacter);
+
+        return new KeyValuePair<PartyMemberBattleActions,
+                                PlayerAction>(currentPerformingCharacter,
+                                              TurnKeyMap[lastCharacter]);
     }
 
     // BattleMenu
@@ -102,6 +120,10 @@ public class BattleManager : MonoBehaviour
 
     void Start()
     {
+        PlayerParty.Clear();
+        EnemyParty.Clear();
+        GroupParties.Clear();
+
         state = BattleState.START;
         StartCoroutine(SetupBattle());
 
@@ -138,8 +160,15 @@ public class BattleManager : MonoBehaviour
         playerParams = playerGO.GetComponent<PartyMember>();
 
         enemyPrefab.transform.rotation = Quaternion.AngleAxis(180,Vector3.up);
-        GameObject enemyGo = Instantiate(enemyPrefab, enemySpawnPoint);
-        enemyParams = enemyGo.GetComponent<Enemy>();
+        GameObject enemyGO = Instantiate(enemyPrefab, enemySpawnPoint);
+        enemyParams = enemyGO.GetComponent<Enemy>();
+
+
+        PlayerParty.Add(playerGO.GetComponent<Intelligence>(), playerGO);
+        EnemyParty.Add(enemyGO.GetComponent<Intelligence>(), enemyGO);
+
+        GroupParties.Add(playerGO.GetComponent<Intelligence>(), playerGO);
+        GroupParties.Add(enemyGO.GetComponent<Intelligence>(), enemyGO);
 
         // Set the HUD
         SetHudHP();
@@ -147,64 +176,113 @@ public class BattleManager : MonoBehaviour
 
         yield return new WaitForSeconds(1.0f);
 
-        state = BattleState.PLAYERTURN;
-        PlayerTurn();
+        PlayerSubmitTurn();
+
     }
 
-    void InitBattleStatuses()
+    void InitPlayerBattleStatuses()
     {
         var playerGO = playerParams.gameObject;
 
-        // battle states
-        //@TODO do this for each party member, also move LuigiAnimEvents to
-        // own player's PartyMember inherited script
-        var playerBattleState = playerGO.GetComponent<LuigiAnimEvents>() as IPartyMemberBattleActions;
+        var playerBattleState = playerGO.GetComponent<Intelligence>() as PartyMemberBattleActions;
 
         playerBattleState.BattleStatus = BattleStatus.Idle;
         currentPerformingCharacter = null;
 
     }
 
-    void PlayerTurn()
+    void InitEnemyBattleStatuses()
     {
-        InitBattleStatuses();
+        var enemyGo = enemyParams.gameObject;
+
+        var enemyBattleState = enemyGo.GetComponent<Intelligence>() as PartyMemberBattleActions;
+
+        enemyBattleState.BattleStatus = BattleStatus.Idle;
+        currentPerformingCharacter = null;
+
+    }
+
+    void PlayerSubmitTurn()
+    {
+        InitPlayerBattleStatuses();
 
         battleMenu.SetActive(true);
 
         TurnKeyMap.Clear();
+        StatsKeyMap.Clear();
         TurnList.Clear();
+        FinishedTurnList.Clear();
+        TurnItemKeyMap.Clear();
+        SpecialKeyMap.Clear();
+
+        state = BattleState.PLAYERTURNSUBMIT;
+
     }
 
-    void EnemyTurn()
+    void EnemySubmitTurn()
     {
+        InitEnemyBattleStatuses();
+
         battleMenu.SetActive(false);
 
-        foreach(var partyMember in FinishedTurnList)
-        {
-            partyMember.OnBattleLoopEnd();
-        }
+        state = BattleState.ENEMYTURNSUBMIT;
 
-        FinishedTurnList.Clear();
-
-        PlayerTurn();
     }
 
     public void SetHudHP() => pm0currentHP.text = playerParams.currentHP.ToString();
 
     private void Update()
     {
+       
         switch (state)
         {
-            case BattleState.PLAYERTURN:
-                if(TurnList.Count == PARTY_MEMBERS_SIZE)
+            case BattleState.PLAYERTURNSUBMIT:
+                if (TurnList.Count == PLAYER_PARTY_MEMBERS_SIZE)
                 {
-                    PerformTurn();
+                    state = BattleState.ENEMYTURNSUBMIT;
+                    EnemySubmitTurn();
+
+                }
+                break;
+
+            case BattleState.ENEMYTURNSUBMIT:
+                if (TurnList.Count == PLAYER_PARTY_MEMBERS_SIZE + ENEMY_PARTY_MEMBERS_SIZE)
+                {
+                    state = BattleState.SUBMISSION;
+
+                }
+                break;
+
+            case BattleState.SUBMISSION:
+                {
+                    TurnList.OrderBy(t => { return StatsKeyMap[t].speed; });
+                    
+
+                    state = BattleState.BATTLE;
+                }
+                break;
+
+            case BattleState.BATTLE:
+
+               if(TurnList.Count == PLAYER_PARTY_MEMBERS_SIZE + ENEMY_PARTY_MEMBERS_SIZE)
+                {
+                    var turnAction = PerformTurn();
+
+                    var enemyGO = enemyParams.gameObject;
+
+                    var enemyAI = enemyGO.GetComponent<AI_Behavior>();
+
                 }
                 else if(TurnList.Count > 0)
                 {
                     if(currentPerformingCharacter.BattleStatus == BattleStatus.Done)
                     {
-                        PerformTurn();
+                        var turnAction = PerformTurn();
+
+                        var enemyGO = enemyParams.gameObject;
+
+                        var enemyAI = enemyGO.GetComponent<AI_Behavior>();
+
                     }
                 }
                 else
@@ -213,15 +291,31 @@ public class BattleManager : MonoBehaviour
                     {
                         if (currentPerformingCharacter.BattleStatus == BattleStatus.Done)
                         {
-                            Debug.Log("Player turn is over");
+                            Debug.Log("Both player and enemy turns are over");
                             // player turn's is over
                             currentPerformingCharacter = null;
-                            EnemyTurn();
+
+                            foreach (var partyMember in FinishedTurnList)
+                            {
+                                partyMember.OnBattleLoopEnd();
+                            }
+
+
+                            TurnKeyMap.Clear();
+                            StatsKeyMap.Clear();
+                            TurnList.Clear();
+                            FinishedTurnList.Clear();
+                            TurnItemKeyMap.Clear();
+                            SpecialKeyMap.Clear();
+
+                            PlayerSubmitTurn();
+        
                         }
 
                     }
                 }
                 break;
+
         }
     }
 }

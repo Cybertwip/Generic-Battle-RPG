@@ -2,20 +2,73 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AI_Thwomp : MonoBehaviour
+public class AI_Thwomp : AI_Behavior
 {
-    public Animator animator;
-    public Enemy enemyStatus;
-    void Start()
+
+    private int ticks = 0;
+
+    protected override void Start()
     {
-        
+        base.Start();   
     }
 
-    void Update()
+    protected override void Update()
     {
+        base.Update();
         // testing some animations, was testing the Behaviours, big waste of time
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout")) animator.SetTrigger("trigger_grimmace");
         else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace")) animator.SetTrigger("trigger_return_to_pout");
+
+
+        if(BattleStatus == BattleStatus.Performing)
+        {
+            ticks++;
+
+            if (ticks >= 40)
+            {
+                BattleStatus = BattleStatus.Done;
+            }
+
+        }
+        else
+        {
+            ticks = 0;
+        }
+
+    }
+
+    protected override void OnTurnSubmit()
+    {
+        battleManager.SubmitTurn(this, PlayerAction.Defend);
+    }
+
+    public override void Special(SpecialAttack.Attack attack)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void Melee()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void Defend()
+    {
+        BattleStatus = BattleStatus.Performing;
+    }
+
+    public override void Item(string name)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void OnBattleLoopEnd()
+    {
+        base.OnBattleLoopEnd();
+
+        BattleStatus = BattleStatus.Idle;
+
+        ticks = 0;
     }
 }
 

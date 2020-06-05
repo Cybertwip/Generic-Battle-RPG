@@ -4,18 +4,18 @@ using UnityEngine;
 
 
 //public abstract class Enemy : Monobehaviour
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, Stats
 {
 
     public string enemyName;
-    public int level;
 
-    public int damage;
-
-    public int maxHP;
-    public int maxFP;
-    public int currentHP;
-    public int currentFP;
+    public int level { get; set; }
+    public int damage { get; set; }
+    public int maxHP { get; set; }
+    public int maxFP { get; set; }
+    public int currentHP { get; set; }
+    public int currentFP { get; set; }
+    public int speed { get; set; }
 
     private void OnTriggerEnter(Collider other)
     {
