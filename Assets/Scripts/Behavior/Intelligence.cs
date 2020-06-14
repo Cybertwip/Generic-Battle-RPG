@@ -28,7 +28,7 @@ public abstract class Intelligence : PartyMemberBattleActions
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
 
     }

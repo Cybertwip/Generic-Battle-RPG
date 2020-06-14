@@ -33,9 +33,14 @@ public class AI_Thwomp : AI_Behavior
     PerformingStatus status = PerformingStatus.None;
     AttackStatus attackStatus = AttackStatus.None;
     BiteStatus biteStatus = BiteStatus.None;
-    
+
+    bool transformFlag;
+
+    bool lerpFlag;
 
     private int ticks = 0;
+
+    Vector3 targetLerpPosition;
 
     private bool performingDamage;
 
@@ -47,9 +52,21 @@ public class AI_Thwomp : AI_Behavior
         target = null;
     }
 
-    protected override void Update()
+    float lerpTime;
+
+    private void LerpOverTime(Vector3 start, Vector3 end, float duration)
     {
-        base.Update();
+        if (lerpTime <= duration)
+        {
+            lerpTime += Time.deltaTime;
+            float percent = Mathf.Clamp01(lerpTime / duration);
+            transform.position = Vector3.Lerp(start, end, percent);
+        }
+    }
+
+    protected override void FixedUpdate()
+    {
+        base.FixedUpdate();
         // testing some animations, was testing the Behaviours, big waste of time
 
 
@@ -81,17 +98,84 @@ public class AI_Thwomp : AI_Behavior
 
                             if (animator.GetCurrentAnimatorStateInfo(0).IsName("Walk"))
                             {
-                                if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1)
+                                if((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 10f / 48f)
                                 {
-                                    AnimTrigger("trigger_wait_00");
+                                    lerpFlag = false;
+                                    lerpTime = 0;
                                 }
-                                
-                            }
+                                else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 10f / 48f &&
+                                    (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 16f / 48f)
+                                {
+                                    if (!lerpFlag)
+                                    {
+                                        lerpFlag = true;
+                                        targetLerpPosition = new Vector3(gameObject.transform.position.x,
+                                                                  gameObject.transform.position.y,
+                                                                  gameObject.transform.position.z - 1.8117333f / 2f);
+                                    }
+
+                                    
+                                    LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
+
+                                }
+                                else if((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 34f / 48f)
+                                {
+                                    lerpFlag = false;
+                                    lerpTime = 0;
+                                }
+                                else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 34f / 48f &&
+                                        (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 40f / 48f)
+                                {
+                                    if (!lerpFlag)
+                                    {
+                                        lerpFlag = true;
+                                        targetLerpPosition = new Vector3(gameObject.transform.position.x,
+                                                                  gameObject.transform.position.y,
+                                                                  gameObject.transform.position.z - 1.8117333f / 2f);
+                                    }
+
+                                    LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
+                                }
+                                else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 1f)
+                                {
+
+                                    if (!transformFlag)
+                                    {
+                                        AnimTrigger("trigger_wait_00");
+
+                                        transformFlag = true;
+                                        /*
+                                        var newZ = gameObject.transform.GetChild(1).transform.position.z;
+                                        var newPosition = new Vector3(gameObject.transform.position.x,
+                                                                      gameObject.transform.position.y,
+                                                                      newZ);
+
+                                        gameObject.transform.position = newPosition;*/
+
+                                    }
+
+
+                                }
+                              }
                             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Wait_00"))
                             {
                                 AnimTrigger("trigger_bite_forward");
+                                transformFlag = false;
                             }
+                            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Walk_R"))
+                            {
+                                if (!transformFlag)
+                                {
+                                    transformFlag = true;
+                                    var newPosition = new Vector3(gameObject.transform.position.x,
+                                                              gameObject.transform.position.y,
+                                                              gameObject.transform.position.z + 1.8117333f);
 
+                                    gameObject.transform.position = newPosition;
+                                }
+                                
+
+                            }
                             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Bite_Forward"))
                             {
                                 float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
@@ -142,6 +226,7 @@ public class AI_Thwomp : AI_Behavior
                             biteStatus = BiteStatus.None;
                             biteFlag = false;
                             performingDamage = false;
+                            transformFlag = false;
                             target = null;
                             break;
                     }
