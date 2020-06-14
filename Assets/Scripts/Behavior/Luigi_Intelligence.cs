@@ -69,6 +69,11 @@ public class Luigi_Intelligence : Intelligence, IsPlayer
     {
         base.Start();
 
+        var partyMember = GetComponent<PartyMember>();
+        partyMember.maxHP = 100;
+        partyMember.currentHP = 100;
+
+
         GetBattleMenu();
         GetBattleManager();
 

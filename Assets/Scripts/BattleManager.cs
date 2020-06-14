@@ -20,7 +20,7 @@ public class BattleManager : MonoBehaviour
     private List<PartyMemberBattleActions> FinishedTurnList = new List<PartyMemberBattleActions>();
 
 
-    private Dictionary<PartyMemberBattleActions, GameObject> PlayerParty = new Dictionary<PartyMemberBattleActions, GameObject>();
+    public Dictionary<PartyMemberBattleActions, GameObject> PlayerParty = new Dictionary<PartyMemberBattleActions, GameObject>();
     private Dictionary<PartyMemberBattleActions, GameObject> EnemyParty = new Dictionary<PartyMemberBattleActions, GameObject>();
 
     private Dictionary<PartyMemberBattleActions, GameObject> GroupParties = new Dictionary<PartyMemberBattleActions, GameObject>();
@@ -170,10 +170,6 @@ public class BattleManager : MonoBehaviour
         GroupParties.Add(playerGO.GetComponent<Intelligence>(), playerGO);
         GroupParties.Add(enemyGO.GetComponent<Intelligence>(), enemyGO);
 
-        // Set the HUD
-        SetHudHP();
-        pm0maxHP.text = playerParams.maxHP.ToString();
-
         yield return new WaitForSeconds(1.0f);
 
         PlayerSubmitTurn();
@@ -229,11 +225,16 @@ public class BattleManager : MonoBehaviour
 
     }
 
-    public void SetHudHP() => pm0currentHP.text = playerParams.currentHP.ToString();
+    public void SetHudHP() 
+    {
+        pm0maxHP.text = playerParams.maxHP.ToString();
+        pm0currentHP.text = playerParams.currentHP.ToString(); 
+    }
 
     private void Update()
     {
-       
+        SetHudHP();
+
         switch (state)
         {
             case BattleState.PLAYERTURNSUBMIT:

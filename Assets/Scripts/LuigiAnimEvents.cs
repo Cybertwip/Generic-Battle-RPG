@@ -38,7 +38,6 @@ public class LuigiAnimEvents : MonoBehaviour
         Application.targetFrameRate = 60;
         SetupControllerState();
 
-
         if (animator.GetInteger("intCntrlState") == 1)
         {
 

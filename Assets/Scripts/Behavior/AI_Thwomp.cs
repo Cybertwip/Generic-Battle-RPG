@@ -1,55 +1,201 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AI_Thwomp : AI_Behavior
 {
 
+    private enum PerformingStatus
+    {
+        Attacking,
+        Special,
+        None
+    }
+
+    private enum AttackStatus
+    {
+        Start,
+        Performing,
+        End,
+        None
+    }
+
+    private enum BiteStatus
+    {
+        Performing,
+        End,
+        None
+    }
+
+    bool biteFlag;
+
+    PerformingStatus status = PerformingStatus.None;
+    AttackStatus attackStatus = AttackStatus.None;
+    BiteStatus biteStatus = BiteStatus.None;
+    
+
     private int ticks = 0;
+
+    private bool performingDamage;
+
+    GameObject target;
 
     protected override void Start()
     {
-        base.Start();   
+        base.Start();
+        target = null;
     }
 
     protected override void Update()
     {
         base.Update();
         // testing some animations, was testing the Behaviours, big waste of time
-        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout")) animator.SetTrigger("trigger_grimmace");
-        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace")) animator.SetTrigger("trigger_return_to_pout");
 
 
         if(BattleStatus == BattleStatus.Performing)
         {
-            ticks++;
-
-            if (ticks >= 40)
+            switch (status)
             {
-                BattleStatus = BattleStatus.Done;
+                case PerformingStatus.Attacking:
+                    switch (attackStatus)
+                    {
+                        case AttackStatus.None:
+                            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
+                            {
+                                AnimTrigger("trigger_grimmace");
+                            }
+                            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
+                            {
+                                AnimTrigger("trigger_bite");
+                                attackStatus = AttackStatus.Start;
+                            }
+                            break;
+
+                        case AttackStatus.Start:
+                            attackStatus = AttackStatus.Performing;
+                            break;
+
+                        case AttackStatus.Performing:
+
+
+                            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Walk"))
+                            {
+                                if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1)
+                                {
+                                    AnimTrigger("trigger_wait_00");
+                                }
+                                
+                            }
+                            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Wait_00"))
+                            {
+                                AnimTrigger("trigger_bite_forward");
+                            }
+
+                            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Bite_Forward"))
+                            {
+                                float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                                if (t >= 0 && t >= 40f / 59f && t <= 45f / 59f)
+                                {
+                                    if (!performingDamage)
+                                    {
+                                        performingDamage = true;
+
+                                        var partyMember = target.GetComponent<PartyMember>();
+                                        partyMember.currentHP -= 10;
+                                    }
+
+                                    biteFlag = true;
+                                }
+                                else if(t >= 1)
+                                {
+                                    AnimTrigger("trigger_wait_01");
+                                }
+
+
+                            }
+                            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
+                            {
+                                if(biteStatus == BiteStatus.None)
+                                {
+                                    biteStatus = BiteStatus.Performing;
+                                }
+                                else if(biteStatus == BiteStatus.Performing)
+                                {
+                                    if (biteFlag)
+                                    {
+                                        biteStatus = BiteStatus.End;
+                                    }
+                                }
+                                else
+                                {
+                                    attackStatus = AttackStatus.End;
+                                }
+                                
+                                
+                            }
+                            break;
+
+                        case AttackStatus.End:
+                            attackStatus = AttackStatus.None;
+                            BattleStatus = BattleStatus.Done;
+                            biteStatus = BiteStatus.None;
+                            biteFlag = false;
+                            performingDamage = false;
+                            target = null;
+                            break;
+                    }
+
+
+
+                    break;
+
+                case PerformingStatus.Special:
+
+                    break;
             }
 
         }
         else
         {
             ticks = 0;
+
+            /*
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout")) 
+                animator.SetTrigger("trigger_grimmace");
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace")) animator.SetTrigger("trigger_return_to_pout"); */
+
         }
 
     }
 
     protected override void OnTurnSubmit()
     {
-        battleManager.SubmitTurn(this, PlayerAction.Defend);
+        int randomPlayerIndex = Random.Range(0, battleManager.PlayerParty.Count);
+        var playerParty = battleManager.PlayerParty.ToList();
+
+        target = playerParty[randomPlayerIndex].Value;
+
+        if(Random.Range(0, 120) <= 80)
+        {
+            battleManager.SubmitTurn(this, PlayerAction.Melee);
+        }
+        else
+        {
+            battleManager.SubmitTurn(this, PlayerAction.Melee);
+        }
     }
 
     public override void Special(SpecialAttack.Attack attack)
     {
-        throw new System.NotImplementedException();
+        BattleStatus = BattleStatus.Performing;
+        status = PerformingStatus.Special;
     }
 
     public override void Melee()
     {
-        throw new System.NotImplementedException();
+        BattleStatus = BattleStatus.Performing;
+        status = PerformingStatus.Attacking;
     }
 
     public override void Defend()
@@ -69,6 +215,15 @@ public class AI_Thwomp : AI_Behavior
         BattleStatus = BattleStatus.Idle;
 
         ticks = 0;
+    }
+
+    void AnimTrigger(string triggerName)
+    {
+        foreach (AnimatorControllerParameter p in animator.parameters)
+            if (p.type == AnimatorControllerParameterType.Trigger)
+                animator.ResetTrigger(p.name);
+        animator.SetTrigger(triggerName);
+        //Debug.Log("triggered " + triggerName);
     }
 }
 
