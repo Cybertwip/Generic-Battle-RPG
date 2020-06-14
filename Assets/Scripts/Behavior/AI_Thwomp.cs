@@ -164,16 +164,44 @@ public class AI_Thwomp : AI_Behavior
                             }
                             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Walk_R"))
                             {
-                                if (!transformFlag)
+                                if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 10f / 48f)
                                 {
-                                    transformFlag = true;
-                                    var newPosition = new Vector3(gameObject.transform.position.x,
-                                                              gameObject.transform.position.y,
-                                                              gameObject.transform.position.z + 1.8117333f);
-
-                                    gameObject.transform.position = newPosition;
+                                    lerpFlag = false;
+                                    lerpTime = 0;
                                 }
-                                
+                                else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 10f / 48f &&
+                                    (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 16f / 48f)
+                                {
+                                    if (!lerpFlag)
+                                    {
+                                        lerpFlag = true;
+                                        targetLerpPosition = new Vector3(gameObject.transform.position.x,
+                                                                  gameObject.transform.position.y,
+                                                                  gameObject.transform.position.z + 1.8117333f / 2f);
+                                    }
+
+
+                                    LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
+
+                                }
+                                else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 34f / 48f)
+                                {
+                                    lerpFlag = false;
+                                    lerpTime = 0;
+                                }
+                                else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 34f / 48f &&
+                                        (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 40f / 48f)
+                                {
+                                    if (!lerpFlag)
+                                    {
+                                        lerpFlag = true;
+                                        targetLerpPosition = new Vector3(gameObject.transform.position.x,
+                                                                  gameObject.transform.position.y,
+                                                                  gameObject.transform.position.z + 1.8117333f / 2f);
+                                    }
+
+                                    LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
+                                }
 
                             }
                             else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Bite_Forward"))
