@@ -59,6 +59,11 @@ public class SFX_Event : MonoBehaviour
 					sfxClip = Resources.Load<AudioClip>("SFX/smrpg_mario_hammer");
 					PlaySFX();
 					break;
+					
+				case "Thwomp_Bite_Forward_wSound":
+					sfxClip = Resources.Load<AudioClip>("SFX/smrpg_battle_chomp");
+					PlaySFX();
+					break;
 
 				default:
 					Debug.LogError("Something went wrong finding the sfxClip in the cases. Check spelling");

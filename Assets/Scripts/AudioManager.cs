@@ -35,7 +35,8 @@ public class AudioManager : MonoBehaviour
             "Luigi_Walk_wSound",
             "Luigi_Run_wSound",
             "Luigi_Battle_Punch_wSound",
-            "Luigi_Battle_PunchTimed_wSound"
+            "Luigi_Battle_PunchTimed_wSound",
+			"Thwomp_Bite_Forward_wSound"
         };
     }
 
