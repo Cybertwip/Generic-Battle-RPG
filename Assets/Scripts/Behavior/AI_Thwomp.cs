@@ -15,18 +15,18 @@ public class AI_Thwomp : AI_Behavior
 
     private enum ThwompStatus
     {
-        RisePrepare,
+        RiseWait,
         Rise,
-        LocatePrepare,
-        Locate,
-        ThwompPrepare,
+        ToTargetWait,
+        ToTarget,
+        ThwompWait,
         Thwomp,
-        RiseBackPrepare,
-        RiseBack,
-        ReturnToBasePrepare,
-        ReturnToBase,
-        RiseDownFinalPrepare,
-        RiseDownFinal,
+        RiseAgainWait,
+        RiseAgain,
+        ToBaseWait,
+        ToBase,
+        ReturnWait,
+        Return,
         End,
         None
     }
@@ -307,35 +307,35 @@ public class AI_Thwomp : AI_Behavior
                             case ThwompStatus.None:
                                if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
                                 {
-                                    thwompStatus = ThwompStatus.RisePrepare;
+                                    thwompStatus = ThwompStatus.RiseWait;
                                 }
                                 break;
 
-                            case ThwompStatus.RisePrepare:
+                            case ThwompStatus.RiseWait:
                                 thwompStatus = ThwompStatus.Rise;
                                 AnimTrigger("trigger_thwomp");
-                                lerpTime = 0;
-                                targetLerpPosition = new Vector3(transform.position.x, transform.position.y + 4, transform.position.z);
+                                lerpTime = 0f;
+                                targetLerpPosition = new Vector3(transform.position.x, transform.position.y + 4f, transform.position.z);
                                 break;
 
                             case ThwompStatus.Rise:
-                                LerpOverTime(transform.position, targetLerpPosition, 16f / 60f);
+                                LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
 
                                 if (transform.position.y == targetLerpPosition.y)
                                 {
-                                    thwompStatus = ThwompStatus.LocatePrepare;
+                                    thwompStatus = ThwompStatus.ToTargetWait;
                                 }
 
                                 break;
 
-                            case ThwompStatus.LocatePrepare:
+                            case ThwompStatus.ToTargetWait:
                                 
                                 if(waitTicks >= 16)
                                 {
                                     waitTicks = 0;
-                                    lerpTime = 0;
+                                    lerpTime = 0f;
                                     targetLerpPosition = new Vector3(transform.position.x, transform.position.y, target.transform.position.z);
-                                    thwompStatus = ThwompStatus.Locate;
+                                    thwompStatus = ThwompStatus.ToTarget;
                                 }
                                 else
                                 {
@@ -345,23 +345,23 @@ public class AI_Thwomp : AI_Behavior
                                 
                                 break;
 
-                            case ThwompStatus.Locate:
-                                LerpOverTime(transform.position, targetLerpPosition, 16f / 60f);
+                            case ThwompStatus.ToTarget:
+                                LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
 
                                 if (transform.position.z == targetLerpPosition.z)
                                 {
-                                    thwompStatus = ThwompStatus.ThwompPrepare;
+                                    thwompStatus = ThwompStatus.ThwompWait;
                                 }
                                 break;
 
-                            case ThwompStatus.ThwompPrepare:
+                            case ThwompStatus.ThwompWait:
 
                                 if (waitTicks >= 30)
                                 {
                                     waitTicks = 0;
-                                    lerpTime = 0;
+                                    lerpTime = 0f;
                                     AnimTrigger("trigger_thwomp_grimmace");
-                                    targetLerpPosition = new Vector3(transform.position.x, transform.position.y - 4, transform.position.z);
+                                    targetLerpPosition = new Vector3(transform.position.x, transform.position.y - 4f, transform.position.z);
                                     thwompStatus = ThwompStatus.Thwomp;
                                 }
                                 else
@@ -371,25 +371,25 @@ public class AI_Thwomp : AI_Behavior
                                 break;
 
                             case ThwompStatus.Thwomp:
-                                LerpOverTime(transform.position, targetLerpPosition, 10f / 60f);
+                                LerpOverTime(transform.position, targetLerpPosition, 12f / 60f);
 
                                 if (transform.position.y == targetLerpPosition.y)
                                 {
                                     var partyMember = target.GetComponent<PartyMember>();
                                     partyMember.currentHP -= 10;
 
-                                    thwompStatus = ThwompStatus.RiseBackPrepare;
+                                    thwompStatus = ThwompStatus.RiseAgainWait;
                                 }
                                 break;
 
-                            case ThwompStatus.RiseBackPrepare:
+                            case ThwompStatus.RiseAgainWait:
                                 if (waitTicks >= 60)
                                 {
                                     waitTicks = 0;
-                                    lerpTime = 0;
+                                    lerpTime = 0f;
                                     AnimTrigger("trigger_thwomp_grimmace_r");
-                                    targetLerpPosition = new Vector3(transform.position.x, transform.position.y + 4, transform.position.z);
-                                    thwompStatus = ThwompStatus.RiseBack;
+                                    targetLerpPosition = new Vector3(transform.position.x, transform.position.y + 4f, transform.position.z);
+                                    thwompStatus = ThwompStatus.RiseAgain;
                                 }
                                 else
                                 {
@@ -397,47 +397,47 @@ public class AI_Thwomp : AI_Behavior
                                 }
                                 break;
 
-                            case ThwompStatus.RiseBack:
+                            case ThwompStatus.RiseAgain:
 
-                                LerpOverTime(transform.position, targetLerpPosition, 16f / 60f);
+                                LerpOverTime(transform.position, targetLerpPosition, 2f);
 
                                 if (transform.position.y == targetLerpPosition.y)
                                 {
-                                    thwompStatus = ThwompStatus.ReturnToBasePrepare;
+                                    thwompStatus = ThwompStatus.ToBaseWait;
                                     AnimTrigger("trigger_thwomp_grimmace_r_exit");
                                 }
                                 break;
 
-                            case ThwompStatus.ReturnToBasePrepare:
+                            case ThwompStatus.ToBaseWait:
                                 if (waitTicks >= 30)
                                 {
                                     waitTicks = 0;
-                                    lerpTime = 0;
+                                    lerpTime = 0f;
                                     targetLerpPosition = new Vector3(transform.position.x, transform.position.y, initialPosition.z);
-                                    thwompStatus = ThwompStatus.ReturnToBase;
+                                    thwompStatus = ThwompStatus.ToBase;
                                 }
                                 else
                                 {
                                     waitTicks++;
                                 }
                                 break;
-                            case ThwompStatus.ReturnToBase:
+                            case ThwompStatus.ToBase:
 
-                                LerpOverTime(transform.position, targetLerpPosition, 16f / 60f);
+                                LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
 
                                 if (transform.position.z == targetLerpPosition.z)
                                 {
-                                    thwompStatus = ThwompStatus.RiseDownFinalPrepare;
+                                    thwompStatus = ThwompStatus.ReturnWait;
                                 }
                                 break;
 
-                            case ThwompStatus.RiseDownFinalPrepare:
+                            case ThwompStatus.ReturnWait:
                                 if (waitTicks >= 30)
                                 {
                                     waitTicks = 0;
                                     lerpTime = 0;
                                     targetLerpPosition = new Vector3(transform.position.x, initialPosition.y, initialPosition.z);
-                                    thwompStatus = ThwompStatus.RiseDownFinal;
+                                    thwompStatus = ThwompStatus.Return;
                                 }
                                 else
                                 {
@@ -446,8 +446,8 @@ public class AI_Thwomp : AI_Behavior
 
                                 break;
 
-                            case ThwompStatus.RiseDownFinal:
-                                LerpOverTime(transform.position, targetLerpPosition, 16f / 60f);
+                            case ThwompStatus.Return:
+                                LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
 
                                 if (transform.position.y == targetLerpPosition.y)
                                 {

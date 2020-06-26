@@ -17,10 +17,10 @@ public class LookAt : MonoBehaviour
         Vector3 lookDirection =  target.position + 1.75f * Vector3.up - transform.position;
         float lookAngle = Vector3.Angle(-Vector3.forward, lookDirection);
         Quaternion rotation = Quaternion.LookRotation(lookDirection, Vector3.up);
-        if (lookAngle < 80f)
+        if (lookAngle < 40f)
 		{
             transform.rotation = rotation;
 		}
-		else transform.rotation = previous_rotation;
+		else{ transform.rotation = previous_rotation;}
     }
 }
