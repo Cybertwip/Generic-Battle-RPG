@@ -512,7 +512,7 @@ public class AI_Thwomp : AI_Behavior
         BattleStatus = BattleStatus.Performing;
         status = PerformingStatus.Attacking;
 
-        currentMeleeAttack = MeleeAttakcs.Thwomp;//(MeleeAttakcs)Random.Range(0, 2);
+        currentMeleeAttack = MeleeAttakcs.Bite;//(MeleeAttakcs)Random.Range(0, 2);
     }
 
     public override void Defend()
