@@ -247,22 +247,38 @@ public class AI_Thwomp : AI_Behavior
                                 else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Bite_Forward"))
                                 {
                                     float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                                    if(t >= 0 && t < 40f / 59f)
+                                    {
+                                        var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                        playerIntelligence.OpenDefendWindow();
+                                    }
+                                    
                                     if (t >= 0 && t >= 40f / 59f && t <= 45f / 59f)
                                     {
                                         if (!performingDamage)
                                         {
                                             performingDamage = true;
 
-                                            var partyMember = target.GetComponent<PartyMember>();
-                                            partyMember.currentHP -= 10;
+                                            var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                            playerIntelligence.TakeDamage(10);
                                         }
 
                                         biteFlag = true;
                                     }
-                                    else if (t >= 1)
+
+                                    if (t > 45f / 59f && t <= 59f / 59f)
+                                    {
+                                        var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                        playerIntelligence.CloseDefendWindow();
+                                    }
+
+                                    if (t >= 1)
                                     {
                                         AnimTrigger("trigger_wait_01");
                                     }
+
+                                    
 
 
                                 }

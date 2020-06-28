@@ -8,7 +8,7 @@ public interface IsPlayer
 
 }
 
-public class Luigi_Intelligence : Intelligence, IsPlayer
+public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 {
 
     public PlayerAction PlayerAction { get; set; }
@@ -37,7 +37,8 @@ public class Luigi_Intelligence : Intelligence, IsPlayer
     // timer
     private bool timerOn; //used to start a timer for animation frames
 
-
+    // defending
+    private bool damageReduction;
 
     public Transform playerSpawnPoint;
     public Transform enemySpawnPoint;
@@ -417,11 +418,41 @@ public class Luigi_Intelligence : Intelligence, IsPlayer
         if (timer >= 0.25f) animator.speed = 1f;
     }
 
+    public override void TakeDamage(int amount)
+    {
+        var partyMember = GetComponent<PartyMember>();
 
+        if (damageReduction)
+        {
+            AnimTrigger("triggerDefend");
+            partyMember.currentHP -= amount / 2;
+        }
+        else
+        {
+            AnimTrigger("triggerTakeDamage");
+            partyMember.currentHP -= amount;
+        }
+        
+
+        
+    }
 
     // Update is called once per frame
     void Update()
     {
+        if (DefendWindow)
+        {
+            if (Input.GetButtonDown("Jump"))
+            {
+                damageReduction = true;
+            }
+        }
+        else
+        {
+            damageReduction = false;
+        }
+
+
         if (animator.GetInteger("intCntrlState") == 1)
         {
             //+----------------------------------------------------------------------------+
@@ -830,6 +861,7 @@ public class Luigi_Intelligence : Intelligence, IsPlayer
 
                 if (t >= 1f) //(t >= 30f / 30f) changed 05/21/2020 @ 21:58
                 {
+                    AnimTrigger("triggerDefendEnd");
                     BattleStatus = BattleStatus.Done;
                 }
             }
