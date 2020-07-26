@@ -39,10 +39,20 @@ public class AI_Thwomp : AI_Behavior
         None
     }
 
+    private enum TantrumStatus
+    {
+        Preparing,
+        Performing,
+        PreparingEnd,
+        End,
+        None
+    }
+
     private enum SpecialAttacks
     {
         Tantrum,
-        Laugh
+        Laugh,
+        None
     }
 
     private enum MeleeAttakcs
@@ -66,7 +76,23 @@ public class AI_Thwomp : AI_Behavior
     BitePerformingStatus bitePerformingStatus = BitePerformingStatus.None;
     ThwompStatus thwompStatus = ThwompStatus.None;
 
+    TantrumStatus tantrumStatus = TantrumStatus.None;
+
     MeleeAttakcs currentMeleeAttack = MeleeAttakcs.None;
+
+    SpecialAttacks currentSpecialAttack = SpecialAttacks.None;
+
+    // How long the object should shake for.
+    public float shakeDuration = 0f;
+
+    // Amplitude of the shake. A larger value shakes the camera harder.
+    public float shakeAmount = 0.2f;
+    public float decreaseFactor = 1f;
+    
+    bool cameraShakeFlag;
+
+    Vector3 cameraOriginalPosition;
+
 
     bool transformFlag;
 
@@ -483,6 +509,115 @@ public class AI_Thwomp : AI_Behavior
                     break;
 
                 case PerformingStatus.Special:
+                    if(currentSpecialAttack == SpecialAttacks.Tantrum)
+                    {
+                        switch (tantrumStatus)
+                        {
+                            case TantrumStatus.None:
+                                tantrumStatus = TantrumStatus.Preparing;
+                                cameraOriginalPosition = Camera.main.transform.position;
+                                break;
+
+                            case TantrumStatus.Preparing:
+                                AnimTrigger("trigger_tantrum");
+                                tantrumStatus = TantrumStatus.Performing;
+                                break;
+
+                            case TantrumStatus.Performing:
+                                if (animator.GetCurrentAnimatorStateInfo(0).IsName("Tantrum"))
+                                {
+                                    float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                                    if (t >= 90f / 439f && t < 110f / 439f)
+                                    {
+                                        if (!cameraShakeFlag)
+                                        {
+                                            cameraShakeFlag = true;
+                                            shakeDuration = 0.2f;
+                                        }
+                                    }
+                                    else if (t >= 150f / 439f && t < 160f / 439f)
+                                    {
+                                        if (!cameraShakeFlag)
+                                        {
+                                            cameraShakeFlag = true;
+                                            shakeDuration = 0.2f;
+                                        }
+                                    }
+                                    else if (t >= 215f / 439f && t < 230f / 439f)
+                                    {
+                                        if (!cameraShakeFlag)
+                                        {
+                                            cameraShakeFlag = true;
+                                            shakeDuration = 0.2f;
+                                        }
+
+                                    }
+                                    else if (t >= 280f / 439f && t < 300f / 439f)
+                                    {
+                                        if (!cameraShakeFlag)
+                                        {
+                                            cameraShakeFlag = true;
+                                            shakeDuration = 0.2f;
+                                        }
+
+                                    }
+                                    else if (t >= 335f / 439f && t < 350f / 439f)
+                                    {
+                                        if (!cameraShakeFlag)
+                                        {
+                                            cameraShakeFlag = true;
+                                            shakeDuration = 0.2f;
+                                        }
+                                    }
+                                    else if (t >= 400f / 439f && t < 410f / 439f)
+                                    {
+                                        if (!cameraShakeFlag)
+                                        {
+                                            cameraShakeFlag = true;
+                                            shakeDuration = 0.2f;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        cameraShakeFlag = false;
+                                    }
+
+
+                                    if (shakeDuration > 0)
+                                    {
+                                        Camera.main.transform.localPosition = cameraOriginalPosition + Random.insideUnitSphere * shakeAmount;
+
+                                        shakeDuration -= Time.deltaTime * decreaseFactor;
+                                    }
+                                    else
+                                    {
+                                        shakeDuration = 0f;
+                                        Camera.main.transform.localPosition = cameraOriginalPosition;
+                                    }
+
+
+                                    if(t >= 1f)
+                                    {
+                                        AnimTrigger("trigger_tantrum_exit");
+
+                                        shakeDuration = 0f;
+                                        Camera.main.transform.localPosition = cameraOriginalPosition;
+                                        cameraShakeFlag = false;
+                                        tantrumStatus = TantrumStatus.End;
+                                    }
+                                }
+                                break;
+
+
+                            case TantrumStatus.End:
+                                tantrumStatus = TantrumStatus.None;
+                                currentSpecialAttack = SpecialAttacks.None;
+                                BattleStatus = BattleStatus.Done;
+                                break;
+                        }
+                    }
+
                     break;
             }
 
@@ -507,20 +642,26 @@ public class AI_Thwomp : AI_Behavior
 
         target = playerParty[randomPlayerIndex].Value;
 
+        /*
         if(Random.Range(0, 120) <= 80)
         {
             battleManager.SubmitTurn(this, PlayerAction.Melee);
         }
         else
         {
-            battleManager.SubmitTurn(this, PlayerAction.Melee);
-        }
+            battleManager.SubmitTurn(this, PlayerAction.Special);
+        }*/
+
+        battleManager.SubmitTurn(this, PlayerAction.Special, SpecialAttack.Attack.Tantrum);
     }
 
     public override void Special(SpecialAttack.Attack attack)
     {
         BattleStatus = BattleStatus.Performing;
         status = PerformingStatus.Special;
+
+        currentSpecialAttack = SpecialAttacks.Tantrum;
+
     }
 
     public override void Melee()
@@ -528,7 +669,7 @@ public class AI_Thwomp : AI_Behavior
         BattleStatus = BattleStatus.Performing;
         status = PerformingStatus.Attacking;
 
-        currentMeleeAttack = MeleeAttakcs.Bite;//(MeleeAttakcs)Random.Range(0, 2);
+        currentMeleeAttack = (MeleeAttakcs)Random.Range(0, 2); //MeleeAttakcs.Bite;
     }
 
     public override void Defend()

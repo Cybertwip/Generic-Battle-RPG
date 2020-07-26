@@ -25,7 +25,8 @@ public class SpecialAttack : MonoBehaviour
         FpDrain,
         AttackUp,
         DefenseUp,
-        MagicUp
+        MagicUp,
+        Tantrum
     };
 
     //Not working, had to hard-code it
