@@ -14,6 +14,7 @@ public class OnTriggerLoadScene : MonoBehaviour
     public Animator animator;
     public Text text;
 
+    private bool triggered;
     private AudioSource audioSource;
 
     void Start()
@@ -21,6 +22,8 @@ public class OnTriggerLoadScene : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         text = guiObject.GetComponentInChildren<Text>();
         text.enabled = false;
+
+        triggered = false;
     }
 
     void OnTriggerStay(Collider other)
@@ -30,10 +33,16 @@ public class OnTriggerLoadScene : MonoBehaviour
 
             text.text = "Press 'E' to\nFight Boss";
             text.enabled = true;
-            if (Input.GetButtonDown("Use"))
+            if (Input.GetButtonDown("Use") && !triggered)
             {
+                triggered = true;
                 audioSource.Play();
-                StartCoroutine(FadeThenLoadScene());
+
+                var gameManager = GameObject.Find("/GameManager").GetComponent<GameState>();
+
+                gameManager.FadeToScreen("BT_Arena");
+
+                //StartCoroutine(FadeThenLoadScene());
             }
         }
     }

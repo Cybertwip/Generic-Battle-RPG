@@ -96,7 +96,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
             }
         }
 
-        Debug.LogError("ERROR: BattleMenu not found!");
+        //Debug.LogError("ERROR: BattleMenu not found!");
     }
 
     void GetBattleManager()
@@ -114,7 +114,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
             }
         }
 
-        Debug.LogError("ERROR: BattleManager not found!");
+        //Debug.LogError("ERROR: BattleManager not found!");
     }
 
     //+------------------------------------------------------------------------------+
@@ -433,8 +433,13 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
             partyMember.currentHP -= amount;
         }
         
+        if(partyMember.currentHP <= 0)
+        {
+            partyMember.currentHP = 0;
+            animator.SetBool("boolIsDead", true); 
+        }
 
-        
+
     }
 
     // Update is called once per frame

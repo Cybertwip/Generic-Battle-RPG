@@ -32,6 +32,8 @@ public class BattleManager : MonoBehaviour
 
     PartyMemberBattleActions currentPerformingCharacter;
 
+    GameState gameStateManager;
+
     public void SubmitTurn(PartyMemberBattleActions member, PlayerAction action)
     {
         TurnKeyMap[member] = action;
@@ -120,6 +122,7 @@ public class BattleManager : MonoBehaviour
 
     void Start()
     {
+        gameStateManager = GameObject.Find("/GameManager").GetComponent<GameState>();
         PlayerParty.Clear();
         EnemyParty.Clear();
         GroupParties.Clear();
@@ -202,7 +205,27 @@ public class BattleManager : MonoBehaviour
     {
         InitPlayerBattleStatuses();
 
-        battleMenu.SetActive(true);
+        bool playersKo = true;
+
+        foreach(var kv in PlayerParty)
+        {
+            if(kv.Value.GetComponent<PartyMember>().currentHP > 0)
+            {
+                playersKo = false;
+                break;
+            }
+        }
+
+        if (playersKo)
+        {
+            battleMenu.SetActive(false);
+            gameStateManager.FadeToScreen("BoosterTower");
+        }
+        else
+        {
+            battleMenu.SetActive(true);
+        }
+        
 
         TurnKeyMap.Clear();
         StatsKeyMap.Clear();
