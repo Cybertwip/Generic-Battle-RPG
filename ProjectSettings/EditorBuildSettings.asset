@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BT_Arena.unity
     guid: 0c6f2b8a423e3a448849fef11c7bbc9e
+  - enabled: 1
+    path: Assets/Scenes/TimeOut.unity
+    guid: 51d4a376cf60165428d8a9d235d66f5d
   m_configObjects: {}

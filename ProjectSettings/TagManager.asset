@@ -13,6 +13,8 @@ TagManager:
   - Target
   - BattleManager
   - AudioManager
+  - Door
+  - Room
   layers:
   - Default
   - TransparentFX
@@ -26,21 +28,21 @@ TagManager:
   - ShadowCatcher
   - Walkable
   - Glow
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Room01
+  - Room02
+  - Room03
+  - Room04
+  - Room05
+  - Room06
+  - Room07
+  - Room00
+  - Doors01
+  - Doors02
+  - Doors03
+  - Doors04
+  - Doors05
+  - Doors06
+  - Doors07
   - 
   - 
   - 
