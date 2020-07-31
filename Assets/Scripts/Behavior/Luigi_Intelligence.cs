@@ -55,6 +55,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
     float fireballAttackTicks;
 
+    bool playerCastedFireball;
+
     public GameObject battleMenu;
 
     private AudioClip sfxClip;
@@ -588,9 +590,17 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
                     if (lerpTime < 6f)
                     {
-                        // TODO: launch fireball
-                        if ((fireballAttackTicks > (1 / 60f) * 10) )
+
+                        if (Input.GetButtonDown("Jump"))
                         {
+                            playerCastedFireball = true;
+                        }
+
+
+                        // TODO: launch fireball
+                        if ((fireballAttackTicks > (1 / 60f) * 10) && playerCastedFireball)
+                        {
+                            playerCastedFireball = false;
                             fireballAttackTicks = 0;
                             GameObject fireballGO = Instantiate(fireballPrefab, this.transform);
 
