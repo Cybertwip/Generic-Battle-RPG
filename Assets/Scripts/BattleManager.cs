@@ -17,7 +17,7 @@ public class BattleManager : MonoBehaviour
     private Dictionary<PartyMemberBattleActions, Stats> StatsKeyMap = new Dictionary<PartyMemberBattleActions, Stats>();
     private List<PartyMemberBattleActions> TurnList = new List<PartyMemberBattleActions>();
 
-    private List<PartyMemberBattleActions> FinishedTurnList = new List<PartyMemberBattleActions>();
+    public List<PartyMemberBattleActions> FinishedTurnList = new List<PartyMemberBattleActions>();
 
 
     public Dictionary<PartyMemberBattleActions, GameObject> PlayerParty = new Dictionary<PartyMemberBattleActions, GameObject>();
@@ -63,29 +63,38 @@ public class BattleManager : MonoBehaviour
     public KeyValuePair<PartyMemberBattleActions, PlayerAction> PerformTurn()
     {
         var lastCharacter = TurnList.First();
+        var battleAction = BattleActions.Defend;
+
         switch (TurnKeyMap[lastCharacter])
         {
             case PlayerAction.Defend:
                 lastCharacter.Defend();
+                battleAction = BattleActions.Defend;
                 break;
 
             case PlayerAction.Item:
 
                 lastCharacter.Item(TurnItemKeyMap[lastCharacter]);
+                battleAction = BattleActions.Item;
 
                 break;
 
             case PlayerAction.Melee:
                 lastCharacter.Melee();
+                battleAction = BattleActions.Melee;
+
                 break;
 
 
             case PlayerAction.Special:
                 lastCharacter.Special(SpecialKeyMap[lastCharacter]);
+                battleAction = BattleActions.Special;
                 break;
         }
 
         currentPerformingCharacter = lastCharacter;
+
+        currentPerformingCharacter.LastPerformedAction = battleAction;
 
         TurnList.Remove(currentPerformingCharacter);
         FinishedTurnList.Add(currentPerformingCharacter);

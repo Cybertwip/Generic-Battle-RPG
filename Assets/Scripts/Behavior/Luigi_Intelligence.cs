@@ -621,6 +621,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
                 if (t >= 0.95f) // this is skipping a lot when t >= 0.99, etc.
                 {
+                    target.parent.GetComponent<AI_Behavior>().OnDamageReceived();
+
                     BattleStatus = BattleStatus.Done;
                     PlayerAction = PlayerAction.None;
                     lerpTime = 0f;
@@ -659,6 +661,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                             lerpTime = 0f;
                             BattleStatus = BattleStatus.Done;
                             PlayerAction = PlayerAction.None;
+
                             // reset timed-hit anim parameter (there is a bug in the melee action where timed-hit always succeeds if we don't):
                             animator.SetBool("boolTimedHit", false);
                         }
@@ -702,6 +705,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                 {
                     Debug.Log("triggerTimedHit");
                     AnimTrigger("triggerTimedHit");
+                    target.parent.GetComponent<AI_Behavior>().OnDamageReceived();
+
                     //doTimedHit = true;
                 }
 
@@ -847,6 +852,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                         lerpTime = 0;
 
                         performingItem = false;
+
+                        target.parent.GetComponent<AI_Behavior>().OnDamageReceived();
 
                         BattleStatus = BattleStatus.Done;
                         PlayerAction = PlayerAction.None;

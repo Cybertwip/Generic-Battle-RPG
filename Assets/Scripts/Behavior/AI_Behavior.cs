@@ -12,11 +12,6 @@ public abstract class AI_Behavior : Intelligence, IsEnemy
 {
     protected Enemy enemyStatus;
 
-    protected List<KeyValuePair<PartyMemberBattleActions, PlayerAction>>
-        playerActionsHistory
-        = new List<KeyValuePair<PartyMemberBattleActions, PlayerAction>>();
-
-
     private bool submittedTurn = false;
 
     // Use this for initialization
@@ -51,6 +46,7 @@ public abstract class AI_Behavior : Intelligence, IsEnemy
 
     }
 
+    public abstract void OnDamageReceived();
     protected abstract void OnTurnSubmit();
 
     public override void OnBattleLoopEnd()

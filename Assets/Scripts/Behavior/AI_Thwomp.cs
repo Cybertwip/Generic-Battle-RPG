@@ -38,7 +38,13 @@ public class AI_Thwomp : AI_Behavior
         End,
         None
     }
-
+    private enum LaughStatus
+    {
+        Start,
+        Performing,
+        End,
+        None
+    }
     private enum TantrumStatus
     {
         Preparing,
@@ -49,6 +55,12 @@ public class AI_Thwomp : AI_Behavior
         None
     }
 
+    private enum DamageStatus
+    {
+        None,
+        Received,
+        End
+    }
     private enum SpecialAttacks
     {
         Tantrum,
@@ -72,16 +84,22 @@ public class AI_Thwomp : AI_Behavior
 
     bool biteFlag;
 
+    System.Action onAfterLaugh;
+
     PerformingStatus status = PerformingStatus.None;
     BiteStatus biteStatus = BiteStatus.None;
     BitePerformingStatus bitePerformingStatus = BitePerformingStatus.None;
     ThwompStatus thwompStatus = ThwompStatus.None;
+    LaughStatus laughStatus = LaughStatus.None;
+    DamageStatus damageStatus = DamageStatus.None;
 
     TantrumStatus tantrumStatus = TantrumStatus.None;
 
     MeleeAttakcs currentMeleeAttack = MeleeAttakcs.None;
 
     SpecialAttacks currentSpecialAttack = SpecialAttacks.None;
+
+    bool triggerBattle;
 
     // How long the object should shake for.
     public float shakeDuration = 0f;
@@ -114,6 +132,7 @@ public class AI_Thwomp : AI_Behavior
         base.Start();
         target = null;
         initialPosition = transform.position;
+        BattleStatus = BattleStatus.Idle;
     }
 
     float lerpTime;
@@ -136,549 +155,681 @@ public class AI_Thwomp : AI_Behavior
 
         if(BattleStatus == BattleStatus.Performing)
         {
-            switch (status)
+            if (damageStatus != DamageStatus.None)
             {
-                case PerformingStatus.Attacking:
-
-                    if(currentMeleeAttack == MeleeAttakcs.Bite)
-                    {
-                        switch (biteStatus)
+                switch (damageStatus)
+                {
+                    case DamageStatus.Received:
+                        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
                         {
-                            case BiteStatus.None:
-                                if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
-                                {
-                                    AnimTrigger("trigger_grimmace");
-                                }
-                                else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
-                                {
-                                    AnimTrigger("trigger_bite");
-                                    biteStatus = BiteStatus.Start;
-                                }
-                                break;
+                            animator.SetTrigger("trigger_wince_from_pout");
+                            damageStatus = DamageStatus.End;
 
-                            case BiteStatus.Start:
-                                biteStatus = BiteStatus.Performing;
-                                break;
-
-                            case BiteStatus.Performing:
-
-
-                                if (animator.GetCurrentAnimatorStateInfo(0).IsName("Walk"))
-                                {
-                                    if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 10f / 48f)
-                                    {
-                                        lerpFlag = false;
-                                        lerpTime = 0;
-                                    }
-                                    else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 10f / 48f &&
-                                        (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 16f / 48f)
-                                    {
-                                        if (!lerpFlag)
-                                        {
-                                            lerpFlag = true;
-                                            targetLerpPosition = new Vector3(gameObject.transform.position.x,
-                                                                      gameObject.transform.position.y,
-                                                                      gameObject.transform.position.z - 1.8117333f / 2f);
-                                        }
-
-
-                                        LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
-
-                                    }
-                                    else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 34f / 48f)
-                                    {
-                                        lerpFlag = false;
-                                        lerpTime = 0;
-                                    }
-                                    else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 34f / 48f &&
-                                            (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 40f / 48f)
-                                    {
-                                        if (!lerpFlag)
-                                        {
-                                            lerpFlag = true;
-                                            targetLerpPosition = new Vector3(gameObject.transform.position.x,
-                                                                      gameObject.transform.position.y,
-                                                                      gameObject.transform.position.z - 1.8117333f / 2f);
-                                        }
-
-                                        LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
-                                    }
-                                    else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 1f)
-                                    {
-
-                                        if (!transformFlag)
-                                        {
-                                            AnimTrigger("trigger_wait_00");
-
-                                            transformFlag = true;
-                                            /*
-                                            var newZ = gameObject.transform.GetChild(1).transform.position.z;
-                                            var newPosition = new Vector3(gameObject.transform.position.x,
-                                                                          gameObject.transform.position.y,
-                                                                          newZ);
-
-                                            gameObject.transform.position = newPosition;*/
-
-                                        }
-
-
-                                    }
-                                }
-                                else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Wait_00"))
-                                {
-                                    AnimTrigger("trigger_bite_forward");
-                                    transformFlag = false;
-                                }
-                                else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Walk_R"))
-                                {
-                                    if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 10f / 48f)
-                                    {
-                                        lerpFlag = false;
-                                        lerpTime = 0;
-                                    }
-                                    else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 10f / 48f &&
-                                        (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 16f / 48f)
-                                    {
-                                        if (!lerpFlag)
-                                        {
-                                            lerpFlag = true;
-                                            targetLerpPosition = new Vector3(gameObject.transform.position.x,
-                                                                      gameObject.transform.position.y,
-                                                                      gameObject.transform.position.z + 1.8117333f / 2f);
-                                        }
-
-
-                                        LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
-
-                                    }
-                                    else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 34f / 48f)
-                                    {
-                                        lerpFlag = false;
-                                        lerpTime = 0;
-                                    }
-                                    else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 34f / 48f &&
-                                            (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 40f / 48f)
-                                    {
-                                        if (!lerpFlag)
-                                        {
-                                            lerpFlag = true;
-                                            targetLerpPosition = new Vector3(gameObject.transform.position.x,
-                                                                      gameObject.transform.position.y,
-                                                                      gameObject.transform.position.z + 1.8117333f / 2f);
-                                        }
-
-                                        LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
-                                    }
-
-                                }
-                                else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Bite_Forward"))
-                                {
-                                    float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-
-                                    if(t >= 0 && t < 40f / 59f)
-                                    {
-                                        var playerIntelligence = target.GetComponent<PlayerIntelligence>();
-                                        playerIntelligence.OpenDefendWindow();
-                                    }
-                                    
-                                    if (t >= 0 && t >= 40f / 59f && t <= 45f / 59f)
-                                    {
-                                        if (!performingDamage)
-                                        {
-                                            performingDamage = true;
-
-                                            var playerIntelligence = target.GetComponent<PlayerIntelligence>();
-                                            playerIntelligence.TakeDamage(10);
-                                        }
-
-                                        biteFlag = true;
-                                    }
-
-                                    if (t > 45f / 59f && t <= 59f / 59f)
-                                    {
-                                        var playerIntelligence = target.GetComponent<PlayerIntelligence>();
-                                        playerIntelligence.CloseDefendWindow();
-                                    }
-
-                                    if (t >= 1)
-                                    {
-                                        AnimTrigger("trigger_wait_01");
-                                    }                                
-
-                                }
-                                else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
-                                {
-                                    if (bitePerformingStatus == BitePerformingStatus.None)
-                                    {
-                                        bitePerformingStatus = BitePerformingStatus.Performing;
-                                    }
-                                    else if (bitePerformingStatus == BitePerformingStatus.Performing)
-                                    {
-                                        if (biteFlag)
-                                        {
-                                            bitePerformingStatus = BitePerformingStatus.End;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        biteStatus = BiteStatus.End;
-                                    }
-
-
-                                }
-                                break;
-
-                            case BiteStatus.End:
-                                biteStatus = BiteStatus.None;
-                                BattleStatus = BattleStatus.Done;
-                                bitePerformingStatus = BitePerformingStatus.None;
-                                biteFlag = false;
-                                performingDamage = false;
-                                transformFlag = false;
-                                target = null;
-                                currentMeleeAttack = MeleeAttakcs.None;
-                                break;
                         }
-                    }
-                    else if(currentMeleeAttack == MeleeAttakcs.Thwomp)
-                    {
-                        switch (thwompStatus)
+
+                        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
                         {
-                            case ThwompStatus.None:
-                               if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
-                                {
-                                    thwompStatus = ThwompStatus.RiseWait;
-                                }
-                                break;
+                            animator.SetTrigger("trigger_wince_from_grimmace");
+                            damageStatus = DamageStatus.End;
 
-                            case ThwompStatus.RiseWait:
-                                thwompStatus = ThwompStatus.Rise;
-                                AnimTrigger("trigger_thwomp");
-                                lerpTime = 0f;
-                                targetLerpPosition = new Vector3(transform.position.x, transform.position.y + 4f, transform.position.z);
-                                break;
+                        }
 
-                            case ThwompStatus.Rise:
-                                LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
 
-                                if (transform.position.y == targetLerpPosition.y)
-                                {
-                                    thwompStatus = ThwompStatus.ToTargetWait;
-                                }
+                        break;
 
-                                break;
+                    case DamageStatus.End:
+                        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout") ||
+                            animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
+                        {
+                            damageStatus = DamageStatus.None;
+                        }
+                        break;
+                }
 
-                            case ThwompStatus.ToTargetWait:
-                                
-                                if(waitTicks >= 16)
-                                {
-                                    waitTicks = 0;
-                                    lerpTime = 0f;
-                                    targetLerpPosition = new Vector3(transform.position.x, transform.position.y, target.transform.position.z);
-                                    thwompStatus = ThwompStatus.ToTarget;
-                                }
-                                else
-                                {
-                                    waitTicks++;
-                                }
+            }
 
-                                
-                                break;
+            if(damageStatus == DamageStatus.None)
+            {
+                if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
+                {
+                    triggerBattle = true;
+                }
+                else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
+                {
+                    animator.SetTrigger("trigger_return_to_pout");
+                }
+            }
 
-                            case ThwompStatus.ToTarget:
-                                LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
 
-                                if (transform.position.z == targetLerpPosition.z)
-                                {
-                                    thwompStatus = ThwompStatus.ThwompWait;
-                                }
-                                break;
 
-                            case ThwompStatus.ThwompWait:
+            if (triggerBattle)
+            {
+                switch (status)
+                {
+                    case PerformingStatus.Attacking:
 
-                                if (waitTicks >= 30)
-                                {
-                                    waitTicks = 0;
-                                    lerpTime = 0f;
-                                    AnimTrigger("trigger_thwomp_grimmace");
-                                    targetLerpPosition = new Vector3(transform.position.x, transform.position.y - 4f, transform.position.z);
-                                    thwompStatus = ThwompStatus.Thwomp;
-                                }
-                                else
-                                {
-                                    waitTicks++;
-                                }
-                                break;
+                        if (currentMeleeAttack == MeleeAttakcs.Bite)
+                        {
+                            switch (biteStatus)
+                            {
+                                case BiteStatus.None:
+                                    if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
+                                    {
+                                        AnimTrigger("trigger_grimmace");
+                                    }
+                                    else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
+                                    {
+                                        AnimTrigger("trigger_bite");
+                                        biteStatus = BiteStatus.Start;
+                                    }
+                                    break;
 
-                            case ThwompStatus.Thwomp:
-                                LerpOverTime(transform.position, targetLerpPosition, 12f / 60f);
+                                case BiteStatus.Start:
+                                    biteStatus = BiteStatus.Performing;
+                                    break;
 
-                                if (transform.position.y == targetLerpPosition.y)
-                                {
-                                    var partyMember = target.GetComponent<PartyMember>();
-                                    partyMember.currentHP -= 10;
+                                case BiteStatus.Performing:
 
-                                    thwompStatus = ThwompStatus.RiseAgainWait;
-                                }
-                                break;
 
-                            case ThwompStatus.RiseAgainWait:
-                                if (waitTicks >= 60)
-                                {
-                                    waitTicks = 0;
-                                    lerpTime = 0f;
-                                    AnimTrigger("trigger_thwomp_grimmace_r");
-                                    targetLerpPosition = new Vector3(transform.position.x, transform.position.y + 4f, transform.position.z);
-                                    thwompStatus = ThwompStatus.RiseAgain;
-                                }
-                                else
-                                {
-                                    waitTicks++;
-                                }
-                                break;
+                                    if (animator.GetCurrentAnimatorStateInfo(0).IsName("Walk"))
+                                    {
+                                        if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 10f / 48f)
+                                        {
+                                            lerpFlag = false;
+                                            lerpTime = 0;
+                                        }
+                                        else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 10f / 48f &&
+                                            (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 16f / 48f)
+                                        {
+                                            if (!lerpFlag)
+                                            {
+                                                lerpFlag = true;
+                                                targetLerpPosition = new Vector3(gameObject.transform.position.x,
+                                                                          gameObject.transform.position.y,
+                                                                          gameObject.transform.position.z - 1.8117333f / 2f);
+                                            }
 
-                            case ThwompStatus.RiseAgain:
 
-                                LerpOverTime(transform.position, targetLerpPosition, 2f);
+                                            LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
 
-                                if (transform.position.y == targetLerpPosition.y)
-                                {
-                                    thwompStatus = ThwompStatus.ToBaseWait;
-                                    AnimTrigger("trigger_thwomp_grimmace_r_exit");
-                                }
-                                break;
+                                        }
+                                        else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 34f / 48f)
+                                        {
+                                            lerpFlag = false;
+                                            lerpTime = 0;
+                                        }
+                                        else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 34f / 48f &&
+                                                (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 40f / 48f)
+                                        {
+                                            if (!lerpFlag)
+                                            {
+                                                lerpFlag = true;
+                                                targetLerpPosition = new Vector3(gameObject.transform.position.x,
+                                                                          gameObject.transform.position.y,
+                                                                          gameObject.transform.position.z - 1.8117333f / 2f);
+                                            }
 
-                            case ThwompStatus.ToBaseWait:
-                                if (waitTicks >= 30)
-                                {
-                                    waitTicks = 0;
-                                    lerpTime = 0f;
-                                    targetLerpPosition = new Vector3(transform.position.x, transform.position.y, initialPosition.z);
-                                    thwompStatus = ThwompStatus.ToBase;
-                                }
-                                else
-                                {
-                                    waitTicks++;
-                                }
-                                break;
-                            case ThwompStatus.ToBase:
+                                            LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
+                                        }
+                                        else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 1f)
+                                        {
 
-                                LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
+                                            if (!transformFlag)
+                                            {
+                                                AnimTrigger("trigger_wait_00");
 
-                                if (transform.position.z == targetLerpPosition.z)
-                                {
-                                    thwompStatus = ThwompStatus.ReturnWait;
-                                }
-                                break;
+                                                transformFlag = true;
+                                                /*
+                                                var newZ = gameObject.transform.GetChild(1).transform.position.z;
+                                                var newPosition = new Vector3(gameObject.transform.position.x,
+                                                                              gameObject.transform.position.y,
+                                                                              newZ);
 
-                            case ThwompStatus.ReturnWait:
-                                if (waitTicks >= 30)
-                                {
-                                    waitTicks = 0;
-                                    lerpTime = 0;
-                                    targetLerpPosition = new Vector3(transform.position.x, initialPosition.y, initialPosition.z);
-                                    thwompStatus = ThwompStatus.Return;
-                                }
-                                else
-                                {
-                                    waitTicks++;
-                                }
+                                                gameObject.transform.position = newPosition;*/
 
-                                break;
+                                            }
 
-                            case ThwompStatus.Return:
-                                LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
 
-                                if (transform.position.y == targetLerpPosition.y)
-                                {
-                                    AnimTrigger("trigger_thwomp_exit");
-                                    thwompStatus = ThwompStatus.None;
+                                        }
+                                    }
+                                    else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Wait_00"))
+                                    {
+                                        AnimTrigger("trigger_bite_forward");
+                                        transformFlag = false;
+                                    }
+                                    else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Walk_R"))
+                                    {
+                                        if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 10f / 48f)
+                                        {
+                                            lerpFlag = false;
+                                            lerpTime = 0;
+                                        }
+                                        else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 10f / 48f &&
+                                            (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 16f / 48f)
+                                        {
+                                            if (!lerpFlag)
+                                            {
+                                                lerpFlag = true;
+                                                targetLerpPosition = new Vector3(gameObject.transform.position.x,
+                                                                          gameObject.transform.position.y,
+                                                                          gameObject.transform.position.z + 1.8117333f / 2f);
+                                            }
+
+
+                                            LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
+
+                                        }
+                                        else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) < 34f / 48f)
+                                        {
+                                            lerpFlag = false;
+                                            lerpTime = 0;
+                                        }
+                                        else if ((animator.GetCurrentAnimatorStateInfo(0).normalizedTime) >= 34f / 48f &&
+                                                (animator.GetCurrentAnimatorStateInfo(0).normalizedTime) <= 40f / 48f)
+                                        {
+                                            if (!lerpFlag)
+                                            {
+                                                lerpFlag = true;
+                                                targetLerpPosition = new Vector3(gameObject.transform.position.x,
+                                                                          gameObject.transform.position.y,
+                                                                          gameObject.transform.position.z + 1.8117333f / 2f);
+                                            }
+
+                                            LerpOverTime(gameObject.transform.position, targetLerpPosition, 6f / 60f);
+                                        }
+
+                                    }
+                                    else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Bite_Forward"))
+                                    {
+                                        float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                                        if (t >= 0 && t < 40f / 59f)
+                                        {
+                                            var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                            playerIntelligence.OpenDefendWindow();
+                                        }
+
+                                        if (t >= 0 && t >= 40f / 59f && t <= 45f / 59f)
+                                        {
+                                            if (!performingDamage)
+                                            {
+                                                performingDamage = true;
+
+                                                var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                                playerIntelligence.TakeDamage(10);
+                                            }
+
+                                            biteFlag = true;
+                                        }
+
+                                        if (t > 45f / 59f && t <= 59f / 59f)
+                                        {
+                                            var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                            playerIntelligence.CloseDefendWindow();
+                                        }
+
+                                        if (t >= 1)
+                                        {
+                                            AnimTrigger("trigger_wait_01");
+                                        }
+
+                                    }
+                                    else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
+                                    {
+                                        if (bitePerformingStatus == BitePerformingStatus.None)
+                                        {
+                                            bitePerformingStatus = BitePerformingStatus.Performing;
+                                        }
+                                        else if (bitePerformingStatus == BitePerformingStatus.Performing)
+                                        {
+                                            if (biteFlag)
+                                            {
+                                                bitePerformingStatus = BitePerformingStatus.End;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            biteStatus = BiteStatus.End;
+                                        }
+
+
+                                    }
+                                    break;
+
+                                case BiteStatus.End:
+                                    biteStatus = BiteStatus.None;
                                     BattleStatus = BattleStatus.Done;
+                                    bitePerformingStatus = BitePerformingStatus.None;
+                                    biteFlag = false;
+                                    performingDamage = false;
+                                    transformFlag = false;
                                     target = null;
                                     currentMeleeAttack = MeleeAttakcs.None;
-                                }
-                                break;
+                                    triggerBattle = false;
+                                    break;
+                            }
                         }
-                    }
-
-
-
-
-                    break;
-
-                case PerformingStatus.Special:
-                    if(currentSpecialAttack == SpecialAttacks.Tantrum)
-                    {
-                        switch (tantrumStatus)
+                        else if (currentMeleeAttack == MeleeAttakcs.Thwomp)
                         {
-                            case TantrumStatus.None:
-                                tantrumStatus = TantrumStatus.Preparing;
-                                cameraOriginalPosition = Camera.main.transform.position;
-                                break;
-
-                            case TantrumStatus.Preparing:
-                                AnimTrigger("trigger_tantrum");
-                                tantrumStatus = TantrumStatus.Performing;
-                                break;
-
-                            case TantrumStatus.Performing:
-                                if (animator.GetCurrentAnimatorStateInfo(0).IsName("Tantrum"))
-                                {
-                                    float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-
-                                    if (t >= 90f / 439f && t < 110f / 439f)
+                            switch (thwompStatus)
+                            {
+                                case ThwompStatus.None:
+                                    if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
                                     {
-                                        if (!cameraShakeFlag)
-                                        {
-                                            cameraShakeFlag = true;
-                                            shakeDuration = 0.2f;
-                                        }
+                                        thwompStatus = ThwompStatus.RiseWait;
                                     }
-                                    else if (t >= 150f / 439f && t < 160f / 439f)
-                                    {
-                                        if (!cameraShakeFlag)
-                                        {
-                                            cameraShakeFlag = true;
-                                            shakeDuration = 0.2f;
-                                        }
-                                    }
-                                    else if (t >= 215f / 439f && t < 230f / 439f)
-                                    {
-                                        if (!cameraShakeFlag)
-                                        {
-                                            cameraShakeFlag = true;
-                                            shakeDuration = 0.2f;
-                                        }
+                                    break;
 
-                                    }
-                                    else if (t >= 280f / 439f && t < 300f / 439f)
-                                    {
-                                        if (!cameraShakeFlag)
-                                        {
-                                            cameraShakeFlag = true;
-                                            shakeDuration = 0.2f;
-                                        }
+                                case ThwompStatus.RiseWait:
+                                    thwompStatus = ThwompStatus.Rise;
+                                    AnimTrigger("trigger_thwomp");
+                                    lerpTime = 0f;
+                                    targetLerpPosition = new Vector3(transform.position.x, transform.position.y + 4f, transform.position.z);
+                                    break;
 
-                                    }
-                                    else if (t >= 335f / 439f && t < 350f / 439f)
+                                case ThwompStatus.Rise:
+                                    LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
+
+                                    if (transform.position.y == targetLerpPosition.y)
                                     {
-                                        if (!cameraShakeFlag)
-                                        {
-                                            cameraShakeFlag = true;
-                                            shakeDuration = 0.2f;
-                                        }
+                                        thwompStatus = ThwompStatus.ToTargetWait;
                                     }
-                                    else if (t >= 400f / 439f && t < 410f / 439f)
+
+                                    break;
+
+                                case ThwompStatus.ToTargetWait:
+
+                                    if (waitTicks >= 16)
                                     {
-                                        if (!cameraShakeFlag)
-                                        {
-                                            cameraShakeFlag = true;
-                                            shakeDuration = 0.2f;
-                                        }
+                                        waitTicks = 0;
+                                        lerpTime = 0f;
+                                        targetLerpPosition = new Vector3(transform.position.x, transform.position.y, target.transform.position.z);
+                                        thwompStatus = ThwompStatus.ToTarget;
                                     }
                                     else
                                     {
-                                        cameraShakeFlag = false;
+                                        waitTicks++;
                                     }
 
 
-                                    if (shakeDuration > 0)
-                                    {
-                                        Camera.main.transform.localPosition = cameraOriginalPosition + Random.insideUnitSphere * shakeAmount;
+                                    break;
 
-                                        shakeDuration -= Time.deltaTime * decreaseFactor;
+                                case ThwompStatus.ToTarget:
+                                    LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
+
+                                    if (transform.position.z == targetLerpPosition.z)
+                                    {
+                                        thwompStatus = ThwompStatus.ThwompWait;
+                                    }
+                                    break;
+
+                                case ThwompStatus.ThwompWait:
+
+                                    if (waitTicks >= 30)
+                                    {
+                                        waitTicks = 0;
+                                        lerpTime = 0f;
+                                        AnimTrigger("trigger_thwomp_grimmace");
+                                        targetLerpPosition = new Vector3(transform.position.x, transform.position.y - 4f, transform.position.z);
+                                        thwompStatus = ThwompStatus.Thwomp;
                                     }
                                     else
                                     {
-                                        shakeDuration = 0f;
-                                        Camera.main.transform.localPosition = cameraOriginalPosition;
+                                        waitTicks++;
+                                    }
+                                    break;
+
+                                case ThwompStatus.Thwomp:
+                                    LerpOverTime(transform.position, targetLerpPosition, 12f / 60f);
+
+                                    if (transform.position.y == targetLerpPosition.y)
+                                    {
+                                        var partyMember = target.GetComponent<PartyMember>();
+                                        partyMember.currentHP -= 10;
+
+                                        thwompStatus = ThwompStatus.RiseAgainWait;
+                                    }
+                                    break;
+
+                                case ThwompStatus.RiseAgainWait:
+                                    if (waitTicks >= 60)
+                                    {
+                                        waitTicks = 0;
+                                        lerpTime = 0f;
+                                        AnimTrigger("trigger_thwomp_grimmace_r");
+                                        targetLerpPosition = new Vector3(transform.position.x, transform.position.y + 4f, transform.position.z);
+                                        thwompStatus = ThwompStatus.RiseAgain;
+                                    }
+                                    else
+                                    {
+                                        waitTicks++;
+                                    }
+                                    break;
+
+                                case ThwompStatus.RiseAgain:
+
+                                    LerpOverTime(transform.position, targetLerpPosition, 2f);
+
+                                    if (transform.position.y == targetLerpPosition.y)
+                                    {
+                                        thwompStatus = ThwompStatus.ToBaseWait;
+                                        AnimTrigger("trigger_thwomp_grimmace_r_exit");
+                                    }
+                                    break;
+
+                                case ThwompStatus.ToBaseWait:
+                                    if (waitTicks >= 30)
+                                    {
+                                        waitTicks = 0;
+                                        lerpTime = 0f;
+                                        targetLerpPosition = new Vector3(transform.position.x, transform.position.y, initialPosition.z);
+                                        thwompStatus = ThwompStatus.ToBase;
+                                    }
+                                    else
+                                    {
+                                        waitTicks++;
+                                    }
+                                    break;
+                                case ThwompStatus.ToBase:
+
+                                    LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
+
+                                    if (transform.position.z == targetLerpPosition.z)
+                                    {
+                                        thwompStatus = ThwompStatus.ReturnWait;
+                                    }
+                                    break;
+
+                                case ThwompStatus.ReturnWait:
+                                    if (waitTicks >= 30)
+                                    {
+                                        waitTicks = 0;
+                                        lerpTime = 0;
+                                        targetLerpPosition = new Vector3(transform.position.x, initialPosition.y, initialPosition.z);
+                                        thwompStatus = ThwompStatus.Return;
+                                    }
+                                    else
+                                    {
+                                        waitTicks++;
                                     }
 
+                                    break;
 
-                                    if(t >= 1f)
+                                case ThwompStatus.Return:
+                                    LerpOverTime(transform.position, targetLerpPosition, 32f / 60f);
+
+                                    if (transform.position.y == targetLerpPosition.y)
                                     {
-                                        AnimTrigger("trigger_tantrum_exit");
-
-                                        shakeDuration = 0f;
-                                        Camera.main.transform.localPosition = cameraOriginalPosition;
-                                        cameraShakeFlag = false;
-                                        tantrumStatus = TantrumStatus.Damaging;
-                                        ticks = 0;
+                                        AnimTrigger("trigger_thwomp_exit");
+                                        thwompStatus = ThwompStatus.None;
+                                        BattleStatus = BattleStatus.Done;
+                                        target = null;
+                                        currentMeleeAttack = MeleeAttakcs.None;
+                                        triggerBattle = false;
                                     }
-                                }
-                                break;
+                                    break;
+                            }
+                        }
 
-                            case TantrumStatus.Damaging:
-                                {
-                                    ticks++;
+                        break;
 
-                                    float t = ticks;
-
-                                    if (ticks >= 0 && ticks < 40)
+                    case PerformingStatus.Special:
+                        if (currentSpecialAttack == SpecialAttacks.Laugh)
+                        {
+                            switch (laughStatus)
+                            {
+                                case LaughStatus.Start:
+                                    if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
                                     {
-                                        var playerIntelligence = target.GetComponent<PlayerIntelligence>();
-                                        playerIntelligence.OpenDefendWindow();
+                                        animator.SetTrigger("trigger_grimmace");
                                     }
-
-                                    if (ticks >= 40)
+                                    else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
                                     {
-                                        if (!performingDamage)
+                                        animator.SetTrigger("trigger_laugh");
+                                        laughStatus = LaughStatus.Performing;
+                                    }
+                                    break;
+
+                                case LaughStatus.Performing:
+                                    if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
+                                    {
+                                        animator.SetTrigger("trigger_return_to_pout");
+                                        laughStatus = LaughStatus.End;
+
+                                    }
+                                    break;
+
+                                case LaughStatus.End:
+                                    if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
+                                    {
+                                        triggerBattle = false;
+                                        laughStatus = LaughStatus.None;
+                                        onAfterLaugh();
+                                    }
+                                    break;
+                            }
+
+
+
+
+                        }
+                        else if (currentSpecialAttack == SpecialAttacks.Tantrum)
+                        {
+                            switch (tantrumStatus)
+                            {
+                                case TantrumStatus.None:
+                                    tantrumStatus = TantrumStatus.Preparing;
+                                    cameraOriginalPosition = Camera.main.transform.position;
+                                    break;
+
+                                case TantrumStatus.Preparing:
+                                    AnimTrigger("trigger_tantrum");
+                                    tantrumStatus = TantrumStatus.Performing;
+                                    break;
+
+                                case TantrumStatus.Performing:
+                                    if (animator.GetCurrentAnimatorStateInfo(0).IsName("Tantrum"))
+                                    {
+                                        float t = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+                                        if (t >= 90f / 439f && t < 110f / 439f)
                                         {
-                                            performingDamage = true;
+                                            if (!cameraShakeFlag)
+                                            {
+                                                cameraShakeFlag = true;
+                                                shakeDuration = 0.2f;
+                                            }
+                                        }
+                                        else if (t >= 150f / 439f && t < 160f / 439f)
+                                        {
+                                            if (!cameraShakeFlag)
+                                            {
+                                                cameraShakeFlag = true;
+                                                shakeDuration = 0.2f;
+                                            }
+                                        }
+                                        else if (t >= 215f / 439f && t < 230f / 439f)
+                                        {
+                                            if (!cameraShakeFlag)
+                                            {
+                                                cameraShakeFlag = true;
+                                                shakeDuration = 0.2f;
+                                            }
 
+                                        }
+                                        else if (t >= 280f / 439f && t < 300f / 439f)
+                                        {
+                                            if (!cameraShakeFlag)
+                                            {
+                                                cameraShakeFlag = true;
+                                                shakeDuration = 0.2f;
+                                            }
+
+                                        }
+                                        else if (t >= 335f / 439f && t < 350f / 439f)
+                                        {
+                                            if (!cameraShakeFlag)
+                                            {
+                                                cameraShakeFlag = true;
+                                                shakeDuration = 0.2f;
+                                            }
+                                        }
+                                        else if (t >= 400f / 439f && t < 410f / 439f)
+                                        {
+                                            if (!cameraShakeFlag)
+                                            {
+                                                cameraShakeFlag = true;
+                                                shakeDuration = 0.2f;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            cameraShakeFlag = false;
+                                        }
+
+
+                                        if (shakeDuration > 0)
+                                        {
+                                            Camera.main.transform.localPosition = cameraOriginalPosition + Random.insideUnitSphere * shakeAmount;
+
+                                            shakeDuration -= Time.deltaTime * decreaseFactor;
+                                        }
+                                        else
+                                        {
+                                            shakeDuration = 0f;
+                                            Camera.main.transform.localPosition = cameraOriginalPosition;
+                                        }
+
+
+                                        if (t >= 1f)
+                                        {
+                                            AnimTrigger("trigger_tantrum_exit");
+
+                                            shakeDuration = 0f;
+                                            Camera.main.transform.localPosition = cameraOriginalPosition;
+                                            cameraShakeFlag = false;
+                                            tantrumStatus = TantrumStatus.Damaging;
+                                            ticks = 0;
+                                        }
+                                    }
+                                    break;
+
+                                case TantrumStatus.Damaging:
+                                    {
+                                        ticks++;
+
+                                        float t = ticks;
+
+                                        if (ticks >= 0 && ticks < 40)
+                                        {
                                             var playerIntelligence = target.GetComponent<PlayerIntelligence>();
-                                            playerIntelligence.TakeDamage(100);
+                                            playerIntelligence.OpenDefendWindow();
                                         }
 
+                                        if (ticks >= 40)
+                                        {
+                                            if (!performingDamage)
+                                            {
+                                                performingDamage = true;
+
+                                                var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                                playerIntelligence.TakeDamage(25);
+                                            }
+
+                                        }
+
+                                        if (ticks >= 40 && ticks <= 60)
+                                        {
+                                            var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                            playerIntelligence.CloseDefendWindow();
+                                        }
+
+                                        if (ticks >= 60)
+                                        {
+                                            ticks = 0;
+                                            tantrumStatus = TantrumStatus.End;
+                                        }
                                     }
 
-                                    if (ticks >= 40 && ticks <= 60)
-                                    {
-                                        var playerIntelligence = target.GetComponent<PlayerIntelligence>();
-                                        playerIntelligence.CloseDefendWindow();
-                                    }
+
+                                    break;
+
+                                case TantrumStatus.End:
+                                    ticks++;
 
                                     if (ticks >= 60)
                                     {
-                                        ticks = 0;
-                                        tantrumStatus = TantrumStatus.End;
+                                        triggerBattle = false;
+                                        performingDamage = false;
+                                        tantrumStatus = TantrumStatus.None;
+                                        currentSpecialAttack = SpecialAttacks.None;
+                                        BattleStatus = BattleStatus.Done;
+
                                     }
-                                }
 
-                                
-                                break;
-
-                            case TantrumStatus.End:
-                                ticks++;
-
-                                if(ticks >= 60)
-                                {
-                                    performingDamage = false;
-                                    tantrumStatus = TantrumStatus.None;
-                                    currentSpecialAttack = SpecialAttacks.None;
-                                    BattleStatus = BattleStatus.Done;
-
-                                }
-
-                                break;
+                                    break;
+                            }
                         }
-                    }
 
-                    break;
+                        break;
+                }
             }
+            
 
         }
         else
         {
             ticks = 0;
 
-            /*
-            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout")) 
-                animator.SetTrigger("trigger_grimmace");
-            else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace")) animator.SetTrigger("trigger_return_to_pout"); */
+            if (damageStatus != DamageStatus.None)
+            {
+                switch (damageStatus)
+                {
+                    case DamageStatus.Received:
+                        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
+                        {
+                            animator.SetTrigger("trigger_wince_from_pout");
+                            damageStatus = DamageStatus.End;
+
+                        }
+
+                        else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
+                        {
+                            animator.SetTrigger("trigger_wince_from_grimmace");
+
+                            damageStatus = DamageStatus.End;
+
+                        }
+
+
+                        break;
+
+                    case DamageStatus.End:
+                        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout") ||
+                            animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
+                        {
+                            damageStatus = DamageStatus.None;
+                        }
+                        break;
+                }
+
+            }
+            else
+            {
+                if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Pout"))
+                    animator.SetTrigger("trigger_grimmace");
+                else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace")) animator.SetTrigger("trigger_return_to_pout");
+
+            }
+
 
         }
 
+    }
+
+    public override void OnDamageReceived()
+    {
+        damageStatus = DamageStatus.Received;
     }
 
     protected override void OnTurnSubmit()
@@ -703,10 +854,28 @@ public class AI_Thwomp : AI_Behavior
 
     public override void Special(SpecialAttack.Attack attack)
     {
+
+        var lastTurn = battleManager.FinishedTurnList.LastOrDefault();
+
+        if(lastTurn != null && lastTurn.LastPerformedAction == BattleActions.Melee)
+        {
+            laughStatus = LaughStatus.Start;
+            currentSpecialAttack = SpecialAttacks.Laugh;
+            onAfterLaugh = () =>
+            {
+                BattleStatus = BattleStatus.Performing;
+                status = PerformingStatus.Special;
+
+                currentSpecialAttack = SpecialAttacks.Tantrum;
+            };
+        }
+        else
+        {
+            currentSpecialAttack = SpecialAttacks.Tantrum;
+        }
+
         BattleStatus = BattleStatus.Performing;
         status = PerformingStatus.Special;
-
-        currentSpecialAttack = SpecialAttacks.Tantrum;
 
     }
 
