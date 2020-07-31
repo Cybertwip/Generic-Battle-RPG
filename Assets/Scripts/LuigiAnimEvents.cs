@@ -128,8 +128,6 @@ public class LuigiAnimEvents : MonoBehaviour
     {
     }
 
-    
-
     /*
     IEnumerator ExecuteAfterTime(float time, Action task)
     {
