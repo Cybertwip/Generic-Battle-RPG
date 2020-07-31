@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class Fireball : MonoBehaviour
 {
-    // Start is called before the first frame update
+    float epsilon = 0f;
+
     void Start()
     {
-        
+        epsilon = Random.Range(-90f, 90f);
+        var eulerAngles = gameObject.transform.localRotation.eulerAngles;
+        gameObject.transform.localRotation = Quaternion.Euler(eulerAngles.x + epsilon, eulerAngles.y, eulerAngles.z);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -16,15 +19,5 @@ public class Fireball : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
-
-    }
-    private void OnCollisionEnter(Collision collision)
-    {
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
