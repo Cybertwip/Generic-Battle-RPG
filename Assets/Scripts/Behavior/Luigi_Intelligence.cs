@@ -53,7 +53,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
     float lerpTime;
 
-    int fireballAttackTicks;
+    float fireballAttackTicks;
 
     public GameObject battleMenu;
 
@@ -584,13 +584,14 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
                 if (animator.speed == 0f)
                 {
-                    fireballAttackTicks++;
+                    fireballAttackTicks += Time.deltaTime;
 
                     if (lerpTime < 6f)
                     {
                         // TODO: launch fireball
-                        if ((fireballAttackTicks % 12) == 0)
+                        if ((fireballAttackTicks > (1 / 60f) * 10) )
                         {
+                            fireballAttackTicks = 0;
                             GameObject fireballGO = Instantiate(fireballPrefab, this.transform);
 
                             var playerPosition = this.transform.position;
