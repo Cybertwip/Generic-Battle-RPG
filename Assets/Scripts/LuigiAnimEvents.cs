@@ -141,7 +141,7 @@ public class LuigiAnimEvents : MonoBehaviour
     void SetupControllerState()
     {
         animator = GetComponent<Animator>();
-        if (SceneManager.GetActiveScene().buildIndex == 1)
+        if (SceneManager.GetActiveScene().buildIndex == 1 || SceneManager.GetActiveScene().buildIndex == 3)
         {
             animator.SetInteger("intCntrlState", 0); // Platforming state
             //this.GetComponent<Animator>().runtimeAnimatorController = platformingController as RuntimeAnimatorController;
