@@ -353,6 +353,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9257b0366ce05e844a19d98f296d7c18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shakeDuration: 0
+  shakeAmount: 0.2
+  decreaseFactor: 1
 --- !u!82 &-4956982844090919718
 AudioSource:
   m_ObjectHideFlags: 0

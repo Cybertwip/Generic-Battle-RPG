@@ -53,10 +53,15 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
     float lerpTime;
 
+    int fireballAttackTicks;
+
     public GameObject battleMenu;
 
     private AudioClip sfxClip;
     public AudioSource audioSource;
+
+    public GameObject fireballPrefab;
+    public Transform fireballEmitter;
 
     // party
     //private GameObject luigiPrefab;
@@ -574,14 +579,27 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                     fba01 = true;
                     animator.speed = 0f; // pause "magic" animation
                     lerpTime = 0f; //resetting, just in case
+                    fireballAttackTicks = 0;
                 }
 
                 if (animator.speed == 0f)
                 {
+                    fireballAttackTicks++;
+
                     if (lerpTime < 6f)
                     {
                         // TODO: launch fireball
-                        if ((lerpTime % 0.2f) > 0.19f || (lerpTime % 0.2f) < 0.01f) audioSource.PlayOneShot(sfxClip); // this is only for demo purposes
+                        if ((fireballAttackTicks % 12) == 0)
+                        {
+                            GameObject fireballGO = Instantiate(fireballPrefab, this.transform);
+
+                            var playerPosition = this.transform.position;
+
+                            fireballGO.transform.position = new Vector3(playerPosition.x, playerPosition.y + 1, playerPosition.z + 1);
+                            fireballGO.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 5);
+
+                            audioSource.PlayOneShot(sfxClip); // this is only for demo purposes
+                        }
                     }
                     else if (lerpTime >= 7f)
                     {
