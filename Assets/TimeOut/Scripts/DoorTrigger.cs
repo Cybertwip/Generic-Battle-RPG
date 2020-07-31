@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DoorTrigger : MonoBehaviour
@@ -18,9 +19,6 @@ public class DoorTrigger : MonoBehaviour
         {
             DoorEvents.current.DoorwayTriggerEnter(id);
         }
-        else if (Input.GetButtonUp("Jump"))
-        {
-            DoorEvents.current.DoorwayTriggerExit(id);
-        }
+       
     }
 }
