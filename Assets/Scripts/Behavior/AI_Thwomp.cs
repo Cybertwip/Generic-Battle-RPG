@@ -44,6 +44,7 @@ public class AI_Thwomp : AI_Behavior
         Preparing,
         Performing,
         PreparingEnd,
+        Damaging,
         End,
         None
     }
@@ -302,10 +303,7 @@ public class AI_Thwomp : AI_Behavior
                                     if (t >= 1)
                                     {
                                         AnimTrigger("trigger_wait_01");
-                                    }
-
-                                    
-
+                                    }                                
 
                                 }
                                 else if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle_Grimmace"))
@@ -604,16 +602,64 @@ public class AI_Thwomp : AI_Behavior
                                         shakeDuration = 0f;
                                         Camera.main.transform.localPosition = cameraOriginalPosition;
                                         cameraShakeFlag = false;
-                                        tantrumStatus = TantrumStatus.End;
+                                        tantrumStatus = TantrumStatus.Damaging;
+                                        ticks = 0;
                                     }
                                 }
                                 break;
 
+                            case TantrumStatus.Damaging:
+                                {
+                                    ticks++;
+
+                                    float t = ticks;
+
+                                    if (ticks >= 0 && ticks < 40)
+                                    {
+                                        var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                        playerIntelligence.OpenDefendWindow();
+                                    }
+
+                                    if (ticks >= 40)
+                                    {
+                                        if (!performingDamage)
+                                        {
+                                            performingDamage = true;
+
+                                            var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                            playerIntelligence.TakeDamage(100);
+                                        }
+
+                                    }
+
+                                    if (ticks >= 40 && ticks <= 60)
+                                    {
+                                        var playerIntelligence = target.GetComponent<PlayerIntelligence>();
+                                        playerIntelligence.CloseDefendWindow();
+                                    }
+
+                                    if (ticks >= 60)
+                                    {
+                                        ticks = 0;
+                                        tantrumStatus = TantrumStatus.End;
+                                    }
+                                }
+
+                                
+                                break;
 
                             case TantrumStatus.End:
-                                tantrumStatus = TantrumStatus.None;
-                                currentSpecialAttack = SpecialAttacks.None;
-                                BattleStatus = BattleStatus.Done;
+                                ticks++;
+
+                                if(ticks >= 60)
+                                {
+                                    performingDamage = false;
+                                    tantrumStatus = TantrumStatus.None;
+                                    currentSpecialAttack = SpecialAttacks.None;
+                                    BattleStatus = BattleStatus.Done;
+
+                                }
+
                                 break;
                         }
                     }

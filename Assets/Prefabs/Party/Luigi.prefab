@@ -2047,6 +2047,9 @@ MonoBehaviour:
   jumpTargets: []
   battleMenu: {fileID: 0}
   audioSource: {fileID: 0}
+  fireballPrefab: {fileID: 8443687956149236565, guid: e733578d21ab6d347a0c56d4f00d6e74,
+    type: 3}
+  fireballEmitter: {fileID: 7050504059069103954}
   target: {fileID: 0}
 --- !u!1 &8684861548675657571
 GameObject:

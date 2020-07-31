@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 
 public enum GameStateName
 {
@@ -17,6 +17,7 @@ public class GameState : MonoBehaviour
 
     public GameStateName state = GameStateName.menu;
    
+    public Camera mainCamera;
 
     private void Awake()
     {
@@ -26,11 +27,37 @@ public class GameState : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
         }
-
         else
         {
             // if instance is already set and this is not the same object, destroy it
             if (this != instance) { Destroy(gameObject); }
         }
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
+    }
+
+    void OnSceneUnloaded(Scene scene)
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        mainCamera = GameObject.Find("/Main Camera").GetComponent<Camera>();
+
+        mainCamera.GetComponent<CameraFade>().FadeOut();
+    }
+
+    public void FadeToScreen(string sceneName)
+    {
+        mainCamera = GameObject.Find("/Main Camera").GetComponent<Camera>();
+
+        mainCamera.GetComponent<CameraFade>().OnFadeEnd = () => {
+            SceneManager.LoadScene(sceneName);
+        };
+
+        mainCamera.GetComponent<CameraFade>().FadeIn();
     }
 }

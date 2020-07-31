@@ -53,10 +53,17 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
     float lerpTime;
 
+    float fireballAttackTicks;
+
+    bool playerCastedFireball;
+
     public GameObject battleMenu;
 
     private AudioClip sfxClip;
     public AudioSource audioSource;
+
+    public GameObject fireballPrefab;
+    public Transform fireballEmitter;
 
     // party
     //private GameObject luigiPrefab;
@@ -96,7 +103,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
             }
         }
 
-        Debug.LogError("ERROR: BattleMenu not found!");
+        //Debug.LogError("ERROR: BattleMenu not found!");
     }
 
     void GetBattleManager()
@@ -114,7 +121,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
             }
         }
 
-        Debug.LogError("ERROR: BattleManager not found!");
+        //Debug.LogError("ERROR: BattleManager not found!");
     }
 
     //+------------------------------------------------------------------------------+
@@ -433,8 +440,13 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
             partyMember.currentHP -= amount;
         }
         
+        if(partyMember.currentHP <= 0)
+        {
+            partyMember.currentHP = 0;
+            animator.SetBool("boolIsDead", true); 
+        }
 
-        
+
     }
 
     // Update is called once per frame
@@ -569,14 +581,36 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                     fba01 = true;
                     animator.speed = 0f; // pause "magic" animation
                     lerpTime = 0f; //resetting, just in case
+                    fireballAttackTicks = 0;
                 }
 
                 if (animator.speed == 0f)
                 {
+                    fireballAttackTicks += Time.deltaTime;
+
                     if (lerpTime < 6f)
                     {
+
+                        if (Input.GetButtonDown("Jump"))
+                        {
+                            playerCastedFireball = true;
+                        }
+
+
                         // TODO: launch fireball
-                        if ((lerpTime % 0.2f) > 0.19f || (lerpTime % 0.2f) < 0.01f) audioSource.PlayOneShot(sfxClip); // this is only for demo purposes
+                        if ((fireballAttackTicks > (1 / 60f) * 10) && playerCastedFireball)
+                        {
+                            playerCastedFireball = false;
+                            fireballAttackTicks = 0;
+                            GameObject fireballGO = Instantiate(fireballPrefab, this.transform);
+
+                            var playerPosition = this.transform.position;
+
+                            fireballGO.transform.position = new Vector3(playerPosition.x, playerPosition.y + 1, playerPosition.z + 1);
+                            fireballGO.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 5);
+
+                            audioSource.PlayOneShot(sfxClip); // this is only for demo purposes
+                        }
                     }
                     else if (lerpTime >= 7f)
                     {
