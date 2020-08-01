@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
-  m_Name: MyPostProcessing Profile
+  m_Name: PostProcessingProfile_BT
   m_EditorClassIdentifier: 
   components:
-  - {fileID: 1039820297331658170}
---- !u!114 &1039820297331658170
+  - {fileID: 5132234215213205401}
+--- !u!114 &5132234215213205401
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -30,15 +30,15 @@ MonoBehaviour:
   m_AdvancedMode: 0
   threshold:
     m_OverrideState: 1
-    m_Value: 0.5
+    m_Value: 1.1
     min: 0
   intensity:
     m_OverrideState: 1
-    m_Value: 4
+    m_Value: 30
     min: 0
   scatter:
     m_OverrideState: 1
-    m_Value: 0.5
+    m_Value: 0.33333334
     min: 0
     max: 1
   clamp:
