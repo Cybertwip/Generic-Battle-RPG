@@ -80,8 +80,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
         base.Start();
 
         var partyMember = GetComponent<PartyMember>();
-        partyMember.maxHP = 100;
-        partyMember.currentHP = 1;
+        partyMember.maxHP = 200;
+        partyMember.currentHP = 200;
 
 
         GetBattleMenu();
