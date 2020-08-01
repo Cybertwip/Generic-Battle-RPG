@@ -35,7 +35,7 @@ public abstract class AI_Behavior : Intelligence, IsEnemy
     {
         if(battleManager.state == BattleState.ENEMYTURNSUBMIT)
         {
-            if (!submittedTurn)
+            if (!submittedTurn && Alive)
             {
                 OnTurnSubmit();
 
@@ -46,7 +46,7 @@ public abstract class AI_Behavior : Intelligence, IsEnemy
 
     }
 
-    public abstract void OnDamageReceived();
+    public abstract void OnDamageReceived(int amount);
     protected abstract void OnTurnSubmit();
 
     public override void OnBattleLoopEnd()

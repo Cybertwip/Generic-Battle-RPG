@@ -86,7 +86,7 @@ public class AI_Thwomp : AI_Behavior
 
     System.Action onAfterLaugh;
 
-    PerformingStatus status = PerformingStatus.None;
+    PerformingStatus performingStatus = PerformingStatus.None;
     BiteStatus biteStatus = BiteStatus.None;
     BitePerformingStatus bitePerformingStatus = BitePerformingStatus.None;
     ThwompStatus thwompStatus = ThwompStatus.None;
@@ -127,12 +127,19 @@ public class AI_Thwomp : AI_Behavior
 
     GameObject target;
 
+    Enemy status;
     protected override void Start()
     {
         base.Start();
         target = null;
         initialPosition = transform.position;
         BattleStatus = BattleStatus.Idle;
+
+        status = GetComponent<Enemy>();
+
+        status.currentHP = 120;
+
+        Alive = true;
     }
 
     float lerpTime;
@@ -147,13 +154,62 @@ public class AI_Thwomp : AI_Behavior
         }
     }
 
+
+    private bool dead;
+
+    private bool submitDeathFlag;
+
+    private float deathTicks;
+
+    public override void OnDeath()
+    {
+        dead = true;
+    }
+
+
+    public override void OnDamageReceived(int amount)
+    {
+        damageStatus = DamageStatus.Received;
+
+        if (status.currentHP >= amount)
+        {
+            status.currentHP -= amount;
+        }
+        else
+        {
+            status.currentHP = 0;
+        }
+
+        if (status.currentHP <= 0)
+        {
+            Alive = false;
+        }
+
+    }
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
         // testing some animations, was testing the Behaviours, big waste of time
 
+        if (dead)
+        {
+            deathTicks += Time.deltaTime;
 
-        if(BattleStatus == BattleStatus.Performing)
+            if (deathTicks >= 3)
+            {
+                if (!submitDeathFlag)
+                {
+                    submitDeathFlag = true;
+                    battleManager.SubmitDeath(this);
+                }
+
+            }
+
+            return;
+        }
+
+
+        if (BattleStatus == BattleStatus.Performing)
         {
             if (damageStatus != DamageStatus.None)
             {
@@ -204,7 +260,7 @@ public class AI_Thwomp : AI_Behavior
 
             if (triggerBattle)
             {
-                switch (status)
+                switch (performingStatus)
                 {
                     case PerformingStatus.Attacking:
 
@@ -827,10 +883,11 @@ public class AI_Thwomp : AI_Behavior
 
     }
 
-    public override void OnDamageReceived()
+    public override void OnRevived()
     {
-        damageStatus = DamageStatus.Received;
+        throw new System.NotImplementedException();
     }
+
 
     protected override void OnTurnSubmit()
     {
@@ -864,7 +921,7 @@ public class AI_Thwomp : AI_Behavior
             onAfterLaugh = () =>
             {
                 BattleStatus = BattleStatus.Performing;
-                status = PerformingStatus.Special;
+                performingStatus = PerformingStatus.Special;
 
                 currentSpecialAttack = SpecialAttacks.Tantrum;
             };
@@ -875,14 +932,14 @@ public class AI_Thwomp : AI_Behavior
         }
 
         BattleStatus = BattleStatus.Performing;
-        status = PerformingStatus.Special;
+        performingStatus = PerformingStatus.Special;
 
     }
 
     public override void Melee()
     {
         BattleStatus = BattleStatus.Performing;
-        status = PerformingStatus.Attacking;
+        performingStatus = PerformingStatus.Attacking;
 
         currentMeleeAttack = (MeleeAttakcs)Random.Range(0, 2); //MeleeAttakcs.Bite;
     }

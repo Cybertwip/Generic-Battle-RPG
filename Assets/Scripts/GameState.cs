@@ -37,6 +37,16 @@ public class GameState : MonoBehaviour
         SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
 
+    public void OnPlayerPartyBattleDefeated()
+    {
+        FadeToScreen("BoosterTower");
+    }
+
+    public void OnEnemyPartyBattleDefeated()
+    {
+        FadeToScreen("BoosterTower");
+    }
+
     void OnSceneUnloaded(Scene scene)
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;

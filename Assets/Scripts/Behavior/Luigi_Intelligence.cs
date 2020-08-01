@@ -72,6 +72,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
     private float timer; //this is that timer
     public Transform target;
 
+    bool punchDamageFlag;
+
     // Use this for initialization
     protected override void Start()
     {
@@ -79,11 +81,13 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
         var partyMember = GetComponent<PartyMember>();
         partyMember.maxHP = 100;
-        partyMember.currentHP = 100;
+        partyMember.currentHP = 1;
 
 
         GetBattleMenu();
         GetBattleManager();
+
+        Alive = true;
 
     }
 
@@ -122,6 +126,22 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
         }
 
         //Debug.LogError("ERROR: BattleManager not found!");
+    }
+
+    private bool dead;
+
+    private bool submitDeathFlag;
+
+    private float deathTicks;
+    
+    public override void OnDeath()
+    {
+        dead = true;
+    }
+
+    public override void OnRevived()
+    {
+        throw new System.NotImplementedException();
     }
 
     //+------------------------------------------------------------------------------+
@@ -442,6 +462,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
         
         if(partyMember.currentHP <= 0)
         {
+            Alive = false;
+
             partyMember.currentHP = 0;
             animator.SetBool("boolIsDead", true); 
         }
@@ -452,6 +474,24 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
     // Update is called once per frame
     void Update()
     {
+
+        if (dead)
+        {
+            deathTicks += Time.deltaTime;
+
+            if(deathTicks >= 3)
+            {
+                if (!submitDeathFlag)
+                {
+                    submitDeathFlag = true;
+                    battleManager.SubmitDeath(this);
+                }
+                
+            }
+
+            return;
+        }
+
         if (DefendWindow)
         {
             if (Input.GetButtonDown("Jump"))
@@ -496,6 +536,9 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                         lerpTime = 0f;
                         mjaDownA = false;
                         mjaWait = true;
+
+                        target.parent.GetComponent<AI_Behavior>().OnDamageReceived(25);
+
                     }
                 }
                 //02.5 wait (better would be to stretch landing animation to 0.25 seconds)
@@ -562,6 +605,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                         transform.position = playerSpawnPoint.position; // to ensure alignment
                         lerpTime = 0f;
                         mjaJumpBack = false;
+                        punchDamageFlag = false;
                         BattleStatus = BattleStatus.Done;
                         PlayerAction = PlayerAction.None;
                     }
@@ -621,8 +665,9 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
                 if (t >= 0.95f) // this is skipping a lot when t >= 0.99, etc.
                 {
-                    target.parent.GetComponent<AI_Behavior>().OnDamageReceived();
+                    target.parent.GetComponent<AI_Behavior>().OnDamageReceived(25);
 
+                    punchDamageFlag = false;
                     BattleStatus = BattleStatus.Done;
                     PlayerAction = PlayerAction.None;
                     lerpTime = 0f;
@@ -661,6 +706,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                             lerpTime = 0f;
                             BattleStatus = BattleStatus.Done;
                             PlayerAction = PlayerAction.None;
+
+                            punchDamageFlag = false;
 
                             // reset timed-hit anim parameter (there is a bug in the melee action where timed-hit always succeeds if we don't):
                             animator.SetBool("boolTimedHit", false);
@@ -701,11 +748,21 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                 if (t < 29f / 83f && Input.GetButtonDown("Jump"))
                     failedTimedHit = true;
 
+                if((t >= 40f / 83f && t < 57f / 83f))
+                {
+                    if (!punchDamageFlag)
+                    {
+                        punchDamageFlag = true;
+                        target.parent.GetComponent<AI_Behavior>().OnDamageReceived(10);
+
+                    }
+                }
+
                 if ((t >= 29f / 83f && t < 57f / 83f) && Input.GetButtonDown("Jump") && failedTimedHit == false)
                 {
                     Debug.Log("triggerTimedHit");
                     AnimTrigger("triggerTimedHit");
-                    target.parent.GetComponent<AI_Behavior>().OnDamageReceived();
+                    target.parent.GetComponent<AI_Behavior>().OnDamageReceived(15);
 
                     //doTimedHit = true;
                 }
@@ -853,7 +910,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
                         performingItem = false;
 
-                        target.parent.GetComponent<AI_Behavior>().OnDamageReceived();
+                        punchDamageFlag = false;
 
                         BattleStatus = BattleStatus.Done;
                         PlayerAction = PlayerAction.None;
@@ -880,6 +937,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
                                 if (itemType == global::Item.Type.Support)
                                 {
+                                    punchDamageFlag = false; 
                                     BattleStatus = BattleStatus.Done;
                                     PlayerAction = PlayerAction.None;
                                     performingItem = false;
@@ -903,6 +961,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                 if (t >= 1f) //(t >= 30f / 30f) changed 05/21/2020 @ 21:58
                 {
                     AnimTrigger("triggerDefendEnd");
+                    punchDamageFlag = false;
                     BattleStatus = BattleStatus.Done;
                 }
             }

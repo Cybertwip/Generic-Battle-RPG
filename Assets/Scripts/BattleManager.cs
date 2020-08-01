@@ -104,6 +104,56 @@ public class BattleManager : MonoBehaviour
                                               TurnKeyMap[lastCharacter]);
     }
 
+    void OnCharacterDead(PartyMemberBattleActions character)
+    {
+        TurnKeyMap.Remove(character);
+        TurnList.Remove(character);
+
+        if (EnemyParty.ContainsKey(character))
+        {
+            EnemyParty.Remove(character);
+        }
+
+        if (PlayerParty.ContainsKey(character))
+        {
+            PlayerParty.Remove(character);
+        }
+
+
+        character.OnDeath();
+    }
+
+    public void SubmitDeath(PartyMemberBattleActions character)
+    {
+        bool isPlayerParty = false;
+
+        if (character.GetComponent<AI_Behavior>() != null)
+        {
+            isPlayerParty = false;
+        }
+
+        if (character.GetComponent<PlayerIntelligence>() != null)
+        {
+            isPlayerParty = true;
+        }
+
+        if (isPlayerParty)
+        {
+            if(PlayerParty.Count == 0)
+            {
+                gameStateManager.OnPlayerPartyBattleDefeated();
+            }
+        }
+        else
+        {
+            if(EnemyParty.Count == 0)
+            {
+                gameStateManager.OnEnemyPartyBattleDefeated();
+            }
+        }
+
+    }
+
     // BattleMenu
     public GameObject battleMenu;
     public List<Button> magicButtons;
@@ -212,29 +262,14 @@ public class BattleManager : MonoBehaviour
 
     void PlayerSubmitTurn()
     {
+        if(PlayerParty.Count == 0)
+        {
+            return;
+        }
+
         InitPlayerBattleStatuses();
 
-        bool playersKo = true;
-
-        foreach(var kv in PlayerParty)
-        {
-            if(kv.Value.GetComponent<PartyMember>().currentHP > 0)
-            {
-                playersKo = false;
-                break;
-            }
-        }
-
-        if (playersKo)
-        {
-            battleMenu.SetActive(false);
-            gameStateManager.FadeToScreen("BoosterTower");
-        }
-        else
-        {
-            battleMenu.SetActive(true);
-        }
-        
+        battleMenu.SetActive(true);
 
         TurnKeyMap.Clear();
         StatsKeyMap.Clear();
@@ -249,6 +284,11 @@ public class BattleManager : MonoBehaviour
 
     void EnemySubmitTurn()
     {
+        if(EnemyParty.Count == 0)
+        {
+            return;
+        }
+
         InitEnemyBattleStatuses();
 
         battleMenu.SetActive(false);
@@ -297,6 +337,15 @@ public class BattleManager : MonoBehaviour
 
             case BattleState.BATTLE:
 
+                foreach(var kv in TurnKeyMap)
+                {
+                    if (!kv.Key.Alive)
+                    {
+                        OnCharacterDead(kv.Key);
+                    }
+                }
+
+                /*
                if(TurnList.Count == PLAYER_PARTY_MEMBERS_SIZE + ENEMY_PARTY_MEMBERS_SIZE)
                 {
                     var turnAction = PerformTurn();
@@ -305,17 +354,16 @@ public class BattleManager : MonoBehaviour
 
                     var enemyAI = enemyGO.GetComponent<AI_Behavior>();
 
-                }
-                else if(TurnList.Count > 0)
+                }*/
+                if(TurnList.Count > 0)
                 {
-                    if(currentPerformingCharacter.BattleStatus == BattleStatus.Done)
+                    if(currentPerformingCharacter == null)
                     {
-                        var turnAction = PerformTurn();
-
-                        var enemyGO = enemyParams.gameObject;
-
-                        var enemyAI = enemyGO.GetComponent<AI_Behavior>();
-
+                        PerformTurn();
+                    }
+                    else if(currentPerformingCharacter.BattleStatus == BattleStatus.Done)
+                    {
+                        PerformTurn();
                     }
                 }
                 else
