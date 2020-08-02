@@ -62,6 +62,9 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
     private AudioClip sfxClip;
     public AudioSource audioSource;
 
+    public GameObject coa_prefab;
+    private GameObject coatOfArms;
+    private float coaStopwatch;
     public GameObject fireballPrefab;
     public Transform fireballEmitter;
 
@@ -207,6 +210,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                 {
                     target = rangedTargets[0]; // temporary, no selection function yet, just one enemy
                     AnimTrigger("triggerMagic"); // all of Luigi's Magic attacks use the same "windup" animation //05/21/2020 @23:59
+                    StartCoroutine(SummonSymbol());
                 }
                 else { Debug.LogError("Hey, it's Spencer...there is supposed to be a rangedTarget on the enemy, but there isn't. Make one in the prefab and call it \"rangedTarget\"!"); }
 
@@ -967,6 +971,28 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
             }
 
             //else if (signal.activeInHierarchy == true) signal.SetActive(false); // in case we are already out of punch animation	
+        }
+    }
+
+    IEnumerator SummonSymbol()
+    {
+        if (coatOfArms == null)
+        {
+            yield return new WaitForSeconds(0.4f);
+            coatOfArms = Instantiate(coa_prefab,
+                            playerSpawnPoint.transform.position + new Vector3(0, 3.5f, 0),
+                            Camera.main.transform.rotation);
+        }
+        while (coaStopwatch < 1f)
+        {
+            coatOfArms.GetComponentInChildren<MeshRenderer>().material.SetFloat("Vector1_DEEF3BD2", Mathf.Abs(Mathf.Sin(coaStopwatch * Mathf.PI / 1.0f)));
+            coaStopwatch += Time.deltaTime;
+            yield return null;
+        }
+        if (coaStopwatch >= 1f)
+        {
+            Destroy(coatOfArms);
+            coaStopwatch = 0f;
         }
     }
 
