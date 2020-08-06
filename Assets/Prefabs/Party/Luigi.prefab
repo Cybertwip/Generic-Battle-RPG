@@ -1938,6 +1938,8 @@ MonoBehaviour:
   jumpTargets: []
   battleMenu: {fileID: 0}
   audioSource: {fileID: 0}
+  coa_prefab: {fileID: 5857598407926885931, guid: 6af96979c20a3964fae091cebe478e5b,
+    type: 3}
   fireballPrefab: {fileID: 5469153593572158695, guid: 69664571946f41a43ae8a41e99d2a3d3,
     type: 3}
   fireballEmitter: {fileID: 7050504059069103954}
