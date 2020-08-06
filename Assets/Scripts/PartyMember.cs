@@ -12,5 +12,10 @@ public class PartyMember : MonoBehaviour, Stats
     public int maxFP { get; set; }
     public int currentHP { get; set; }
     public int currentFP { get; set; }
+
+    public int strenght { get; set; }
+    public int defense { get; set; }
+    public int magicPower { get; set; }
+    public int magicDefense { get; set; }
     public int speed { get; set; }
 }

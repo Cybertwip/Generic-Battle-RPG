@@ -26,9 +26,10 @@ public class Item : MonoBehaviour
     public int dHP;
     public int dFP;
     public int dStrength;
-    public float dDefense;
-    public float dMagicPower;
-    public float dMagicDefense;
+    public int dDefense;
+    public int dMagicPower;
+    public int dMagicDefense;
+    public int dSpeed;
 
     public bool enraged = false;
 

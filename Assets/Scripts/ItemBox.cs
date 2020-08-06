@@ -33,7 +33,7 @@ public class ItemBox : MonoBehaviour
 
             var inventory = Inventory.Instance;
 
-            var randomItem = inventory.Items[0];
+            var randomItem = inventory.Items[randInt];
 
             GameObject prefab = Resources.Load(randomItem.GetPath) as GameObject;
            
@@ -49,6 +49,16 @@ public class ItemBox : MonoBehaviour
             item.itemName = randomItem.Name;
             item.menuName = randomItem.MenuName;
             item.description = randomItem.Description;
+
+            var itemStats = items[randInt].GetComponent<Item>();
+
+            item.dHP = itemStats.dHP;
+            item.dFP = itemStats.dFP;
+            item.dStrength = itemStats.dStrength;
+            item.dDefense = itemStats.dDefense;
+            item.dMagicPower = itemStats.dMagicPower;
+            item.dMagicDefense = itemStats.dMagicDefense;
+            item.dSpeed = itemStats.dSpeed;
 
             GameObject newObj = newObject; //Instantiate(items[randInt]);
             /*GameObject itemObj = Instantiate(items[randInt].GetComponent<Item>().getPrefab,

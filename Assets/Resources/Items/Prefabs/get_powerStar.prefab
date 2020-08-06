@@ -45,6 +45,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -125,6 +126,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -171,7 +173,7 @@ GameObject:
   - component: {fileID: 2125426842064428488}
   - component: {fileID: 5245206159698994296}
   m_Layer: 0
-  m_Name: 1Get
+  m_Name: get_powerStar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -220,11 +222,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2125426842064428488}
     m_Modifications:
-    - target: {fileID: 4928452410406332366, guid: 404686f19f37cee4aa3a680ed3cb0128,
-        type: 3}
-      propertyPath: m_Name
-      value: powerStarFront512
-      objectReference: {fileID: 0}
     - target: {fileID: 856903490860606461, guid: 404686f19f37cee4aa3a680ed3cb0128,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -279,6 +276,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4928452410406332366, guid: 404686f19f37cee4aa3a680ed3cb0128,
+        type: 3}
+      propertyPath: m_Name
+      value: powerStarFront512
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 404686f19f37cee4aa3a680ed3cb0128, type: 3}

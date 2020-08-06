@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 2
-  type: offensive
+  type: 0
   itemName: Chocolate Mousse
   menuName: Chocolate Mousse
   description: A treat you shouldn't keep to yourself.
@@ -59,4 +59,5 @@ MonoBehaviour:
   dDefense: 0
   dMagicPower: 0
   dMagicDefense: 0
+  dSpeed: 0
   enraged: 0

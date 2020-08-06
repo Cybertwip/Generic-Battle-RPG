@@ -49,6 +49,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
     private bool performingItem = false;
     private GameObject performingItemGO = null;
+    private GameObject offensiveItem = null;
+
     private string currentPerformingItem = "";
 
     float lerpTime;
@@ -74,6 +76,8 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
     bool punchDamageFlag;
 
+    PartyMember stats;
+
     // Use this for initialization
     protected override void Start()
     {
@@ -83,6 +87,7 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
         partyMember.maxHP = 200;
         partyMember.currentHP = 200;
 
+        stats = partyMember;
 
         GetBattleMenu();
         GetBattleManager();
@@ -818,6 +823,26 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
 
                         inventory.itemList.Remove(toRemove);
 
+                        var itemStats = toRemove.GetComponent<Item>();
+
+                        stats.currentHP += itemStats.dHP;
+                        stats.currentFP += itemStats.dFP;
+                        stats.strenght += itemStats.dStrength;
+                        stats.defense += itemStats.dDefense;
+                        stats.magicPower += itemStats.dMagicPower;
+                        stats.magicDefense += itemStats.dMagicDefense;
+                        stats.speed += itemStats.dSpeed;
+                        
+                        if(stats.currentHP > stats.maxHP)
+                        {
+                            stats.currentHP = stats.maxHP;
+                        }
+
+                        if(stats.currentFP > stats.maxFP)
+                        {
+                            stats.currentFP = stats.maxFP;
+                        }
+
                         newObj.transform.SetParent(playerSpawnPoint);
 
                         Destroy(newObj, 1.6f);
@@ -862,13 +887,14 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                             }
                         }
 
-                        //inventory.itemList.Remove(toRemove);
+                        inventory.itemList.Remove(toRemove);
 
                         //newObj.transform.SetParent(playerSpawnPoint);
 
                         lerpTime = 0;
 
                         performingItemGO = newObj;
+                        offensiveItem = toRemove;
                     }
                 }
             }
@@ -905,6 +931,19 @@ public class Luigi_Intelligence : PlayerIntelligence, IsPlayer
                     }
                     else
                     {
+
+                        var itemStats = offensiveItem.GetComponent<Item>();
+
+                        var enemyStats = target.parent.GetComponent<Enemy>();
+
+                        enemyStats.currentHP += itemStats.dHP;
+                        enemyStats.currentFP += itemStats.dFP;
+                        enemyStats.strenght += itemStats.dStrength;
+                        enemyStats.defense += itemStats.dDefense;
+                        enemyStats.magicPower += itemStats.dMagicPower;
+                        enemyStats.magicDefense += itemStats.dMagicDefense;
+                        enemyStats.speed += itemStats.dSpeed;
+
                         performingItemGO = null;
                         lerpTime = 0;
 

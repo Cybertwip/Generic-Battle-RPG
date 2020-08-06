@@ -45,6 +45,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -91,7 +92,7 @@ GameObject:
   - component: {fileID: 5285785628907292259}
   - component: {fileID: 2084987698568396755}
   m_Layer: 0
-  m_Name: 2Get
+  m_Name: get_turd
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -178,6 +179,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -220,11 +222,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5285785628907292259}
     m_Modifications:
-    - target: {fileID: 9166619684300953891, guid: eb82e440b3302b248b8d6cfb94776afa,
-        type: 3}
-      propertyPath: m_Name
-      value: turdFront512
-      objectReference: {fileID: 0}
     - target: {fileID: 3510367328342285584, guid: eb82e440b3302b248b8d6cfb94776afa,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -279,6 +276,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9166619684300953891, guid: eb82e440b3302b248b8d6cfb94776afa,
+        type: 3}
+      propertyPath: m_Name
+      value: turdFront512
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eb82e440b3302b248b8d6cfb94776afa, type: 3}
