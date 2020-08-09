@@ -8,12 +8,16 @@ public class Battle_Menu : MonoBehaviour
     public float scaleFactor = 0.75f;
     public float resolution = 100f;
     [SerializeField] GameObject buttonTemplate;
+    [SerializeField] GameObject magicButtonTemplate;
     private TMP_Text tmpText;
 
     // MAGIC
     // public List<SpecialAttack> magicList = new List<SpecialAttack>();
     public List<GameObject> magicList = new List<GameObject>();
     private int magicList_size;
+
+    public GameObject magicPanel;
+
     [SerializeField] GameObject magicContainer;
     [SerializeField] GameObject magicContainerParent;
 
@@ -72,11 +76,34 @@ public class Battle_Menu : MonoBehaviour
             float magicTargetHeight = magicContainerHeight + buttonHeight * (magicList_size - 1);
             magicContainerParent.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, magicTargetHeight);
         }
+
+        var magicPanelComponent = magicPanel.GetComponent<MagicPanel>();
+
+        int componentCounter = 0;
+        int yOffset = 64;
+        int xOffset = 16;
+
         // Instantiate children of Container (Vertical Layout Group component will take care of alignment for me)
         //for (int i = 0; i < magicList_size; i++) // this will push list backwards
-        for (int i = magicList_size - 1; i >=0;  i-- )
+        for (int i = magicList_size - 1; i >= 0; i--)
         {
-            GameObject newMagicButton = Instantiate(buttonTemplate, magicContainer.transform, false);
+            GameObject newMagicButton = Instantiate(magicButtonTemplate, magicPanel.transform, false);
+
+            magicPanelComponent.buttons[componentCounter++] = newMagicButton;
+
+
+
+            var buttonRectTransform = newMagicButton.GetComponent<RectTransform>();
+
+            var panelRectTransform = magicPanel.GetComponent<RectTransform>();
+
+            
+            newMagicButton.transform.localPosition = 
+                new Vector3(-panelRectTransform.rect.width / 2f + xOffset, 
+                            (panelRectTransform.rect.height / 2) - yOffset, -5);
+
+            yOffset += (int)buttonRectTransform.rect.height;
+
             //newMagicButton.GetComponentInChildren<TMP_Text>().text = magicList[i].menuName;
             newMagicButton.GetComponentInChildren<TMP_Text>().text = magicList[i].GetComponent<SpecialAttack>().menuName;
         }

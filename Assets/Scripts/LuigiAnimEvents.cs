@@ -17,6 +17,7 @@ public class LuigiAnimEvents : MonoBehaviour
 
     // BattleMenu
     public GameObject battleMenu;
+    public GameObject battleManager;
     public Button jumpButton;
     public Button fireballButton;
     public Button attackButton;
@@ -40,7 +41,7 @@ public class LuigiAnimEvents : MonoBehaviour
 
         if (animator.GetInteger("intCntrlState") == 1)
         {
-
+            battleManager = GameObject.Find("/BattleManager");
             InitializePrivates();
 
             GetBattleMenu();
@@ -188,8 +189,12 @@ public class LuigiAnimEvents : MonoBehaviour
 
     void GetButtons()
     {
-        jumpButton = battleMenu.transform.GetChild(0).GetChild(2).GetChild(0).GetChild(0).GetComponent<Button>();
-        fireballButton = battleMenu.transform.GetChild(0).GetChild(2).GetChild(0).GetChild(1).GetComponent<Button>();
+        var battleMenuComponent = battleManager.GetComponent<Battle_Menu>();
+
+        var magicPanel = battleMenuComponent.magicPanel.GetComponent<MagicPanel>();
+
+        jumpButton = magicPanel.buttons[0].GetComponent<Button>();
+        fireballButton = magicPanel.buttons[1].GetComponent<Button>();
         attackButton = battleMenu.transform.GetChild(1).GetChild(2).GetChild(0).GetChild(0).GetComponent<Button>();
         defendButton = battleMenu.transform.GetChild(2).GetChild(2).GetChild(0).GetChild(0).GetComponent<Button>();
         // handle itemButton

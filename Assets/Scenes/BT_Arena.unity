@@ -986,6 +986,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &246493965 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 855250213, guid: 949b547e61b8d944c9b2bbf39d82e36a,
+    type: 3}
+  m_PrefabInstance: {fileID: 1781648205857654219}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &273457983
 GameObject:
   m_ObjectHideFlags: 0
@@ -4505,7 +4511,10 @@ MonoBehaviour:
   resolution: 100
   buttonTemplate: {fileID: 1054691181131235599, guid: 1c1adeb85ec196946998127e794aad88,
     type: 3}
+  magicButtonTemplate: {fileID: 1054691181131235599, guid: c91daf4a388a1fc49b658d0fbf7532b3,
+    type: 3}
   magicList: []
+  magicPanel: {fileID: 246493965}
   magicContainer: {fileID: 1891961583}
   magicContainerParent: {fileID: 309761511}
   itemList: []
