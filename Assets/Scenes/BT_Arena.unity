@@ -6552,6 +6552,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas_BattleUI
       objectReference: {fileID: 0}
+    - target: {fileID: 1781648207254349545, guid: 949b547e61b8d944c9b2bbf39d82e36a,
+        type: 3}
+      propertyPath: m_ReferencePixelsPerUnit
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 1781648207254349547, guid: 949b547e61b8d944c9b2bbf39d82e36a,
         type: 3}
       propertyPath: m_LocalPosition.x

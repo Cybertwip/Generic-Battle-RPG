@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1054691181131235592}
   - component: {fileID: 1054691181131235595}
   - component: {fileID: 1054691181131235593}
-  - component: {fileID: 4970182912385419988}
+  - component: {fileID: 8271822208408607366}
   m_Layer: 0
   m_Name: Magic_Button_Template
   m_TagString: BattleMenu
@@ -91,7 +91,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4970182912385419988}
+      - m_Target: {fileID: 8271822208408607366}
         m_MethodName: CloseOnClick
         m_Mode: 1
         m_Arguments:
@@ -102,7 +102,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &4970182912385419988
+--- !u!114 &8271822208408607366
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -111,9 +111,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1054691181131235599}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a772a96267d0c8488834a1ba960d409, type: 3}
+  m_Script: {fileID: 11500000, guid: 80380eabe67f70a4bb0dc6c868b4fdb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  magicPanel: {fileID: 0}
 --- !u!1 &1054691181849148892
 GameObject:
   m_ObjectHideFlags: 0

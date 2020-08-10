@@ -26,6 +26,14 @@ public class MagicButton : MonoBehaviour
         }
     }
 
+    public void CloseOnClick()
+    {
+        //On click, deactivates the panel that the button sits in, two parents up
+        GameObject secondParent = gameObject.transform.parent.transform.gameObject;
+        secondParent.SetActive(false);
+    }
+
+
     // Update is called once per frame
     void Update()
     {
