@@ -8,6 +8,8 @@ public class MagicButton : MonoBehaviour
 
     [SerializeField] GameObject magicPanel;
 
+    [SerializeField] GameObject[] buttons = new GameObject[4];
+
     public void Start()
     {
         magicPanel.SetActive(false);
@@ -15,22 +17,41 @@ public class MagicButton : MonoBehaviour
     public void TogglePanel()
     {
         int thisButtonIndex = gameObject.transform.GetSiblingIndex();
-        magicPanel.SetActive(!magicPanel.activeInHierarchy);
         Transform firstParent = gameObject.transform.parent;
         for (int i = 0; i < 4; i++)
         {
-            if (i != thisButtonIndex)
+            if (i == thisButtonIndex && i == 0)
             {
-                firstParent.GetChild(i).transform.GetChild(2).gameObject.SetActive(false);
+                magicPanel.SetActive(!magicPanel.activeInHierarchy);
+                buttons[i].transform.GetChild(2).gameObject.SetActive(false);
+                for (int j = 1; j < 4; j++)
+                {
+                    buttons[j].transform.GetChild(2).gameObject.SetActive(false);
+
+                }
+
+                break;
+            }
+            else if(i != thisButtonIndex)
+            {
+                buttons[i].transform.GetChild(2).gameObject.SetActive(false);
+                magicPanel.SetActive(false);
+            }
+            else
+            {
+                buttons[i].transform.GetChild(2).gameObject.SetActive(!buttons[i].transform.GetChild(2).gameObject.activeInHierarchy);
+                magicPanel.SetActive(false);
+
             }
         }
     }
 
     public void CloseOnClick()
     {
-        //On click, deactivates the panel that the button sits in, two parents up
-        GameObject secondParent = gameObject.transform.parent.transform.gameObject;
-        secondParent.SetActive(false);
+        for (int i = 0; i < 4; i++)
+        {
+            buttons[i].transform.GetChild(2).gameObject.SetActive(false);
+        }
     }
 
 

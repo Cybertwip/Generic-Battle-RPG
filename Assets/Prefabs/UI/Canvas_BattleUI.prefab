@@ -162,7 +162,7 @@ GameObject:
   - component: {fileID: 1781648205789960077}
   - component: {fileID: 1781648205789960078}
   - component: {fileID: 1781648205789960079}
-  - component: {fileID: 2122936272}
+  - component: {fileID: 10224244295548002}
   m_Layer: 0
   m_Name: Button_AttackDropDown
   m_TagString: Untagged
@@ -272,18 +272,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2122936272}
+      - m_Target: {fileID: 10224244295548002}
         m_MethodName: TogglePanel
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 1781648207066500433}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &2122936272
+--- !u!114 &10224244295548002
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -292,9 +292,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1781648205789960073}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a772a96267d0c8488834a1ba960d409, type: 3}
+  m_Script: {fileID: 11500000, guid: 80380eabe67f70a4bb0dc6c868b4fdb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  magicPanel: {fileID: 3098083636735852269}
+  buttons:
+  - {fileID: 1781648206306477971}
+  - {fileID: 1781648205789960073}
+  - {fileID: 1781648207702094314}
+  - {fileID: 1781648205949577946}
 --- !u!1 &1781648205869115095
 GameObject:
   m_ObjectHideFlags: 0
@@ -494,7 +500,7 @@ GameObject:
   - component: {fileID: 1781648205949577950}
   - component: {fileID: 1781648205949577951}
   - component: {fileID: 1781648205949577944}
-  - component: {fileID: 1504030769}
+  - component: {fileID: 860539752154131271}
   m_Layer: 0
   m_Name: Button_ItemDropDown
   m_TagString: Untagged
@@ -604,18 +610,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1504030769}
+      - m_Target: {fileID: 860539752154131271}
         m_MethodName: TogglePanel
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 1781648206582664472}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1504030769
+--- !u!114 &860539752154131271
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -624,9 +630,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1781648205949577946}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a772a96267d0c8488834a1ba960d409, type: 3}
+  m_Script: {fileID: 11500000, guid: 80380eabe67f70a4bb0dc6c868b4fdb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  magicPanel: {fileID: 3098083636735852269}
+  buttons:
+  - {fileID: 1781648206306477971}
+  - {fileID: 1781648205789960073}
+  - {fileID: 1781648207702094314}
+  - {fileID: 1781648205949577946}
 --- !u!1 &1781648206306477971
 GameObject:
   m_ObjectHideFlags: 0
@@ -773,6 +785,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   magicPanel: {fileID: 3098083636735852269}
+  buttons:
+  - {fileID: 1781648206306477971}
+  - {fileID: 1781648205789960073}
+  - {fileID: 1781648207702094314}
+  - {fileID: 1781648205949577946}
 --- !u!1 &1781648206570620365
 GameObject:
   m_ObjectHideFlags: 0
@@ -1588,7 +1605,7 @@ GameObject:
   - component: {fileID: 1781648207702094318}
   - component: {fileID: 1781648207702094319}
   - component: {fileID: 1781648207702094312}
-  - component: {fileID: 1729363257}
+  - component: {fileID: 6961953526439152780}
   m_Layer: 0
   m_Name: Button_DefenseDropDown
   m_TagString: Untagged
@@ -1698,18 +1715,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1729363257}
+      - m_Target: {fileID: 6961953526439152780}
         m_MethodName: TogglePanel
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 1781648206449807816}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1729363257
+--- !u!114 &6961953526439152780
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1718,9 +1735,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1781648207702094314}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a772a96267d0c8488834a1ba960d409, type: 3}
+  m_Script: {fileID: 11500000, guid: 80380eabe67f70a4bb0dc6c868b4fdb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  magicPanel: {fileID: 3098083636735852269}
+  buttons:
+  - {fileID: 1781648206306477971}
+  - {fileID: 1781648205789960073}
+  - {fileID: 1781648207702094314}
+  - {fileID: 1781648205949577946}
 --- !u!1 &3098083636735852269
 GameObject:
   m_ObjectHideFlags: 0
@@ -2425,12 +2448,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3ede94645e9234440ac68683b2e08ce8, type: 3}
---- !u!1 &1781648207066500433 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5233203459440336320, guid: 3ede94645e9234440ac68683b2e08ce8,
-    type: 3}
-  m_PrefabInstance: {fileID: 5771852527366590609}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1781648207066500432 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5233203459440336321, guid: 3ede94645e9234440ac68683b2e08ce8,
@@ -2567,12 +2584,6 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 5930659257894710496}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1781648206582664472 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5401013007757107704, guid: 0170ad52f3b27bf4aa7c5c461fbd0b39,
-    type: 3}
-  m_PrefabInstance: {fileID: 5930659257894710496}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7851552485599568246
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2697,12 +2708,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8269930aba8ebe1429adf1216d30e639, type: 3}
---- !u!1 &1781648206449807816 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8381197773929214142, guid: 8269930aba8ebe1429adf1216d30e639,
-    type: 3}
-  m_PrefabInstance: {fileID: 7851552485599568246}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1781648206449807823 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8381197773929214137, guid: 8269930aba8ebe1429adf1216d30e639,
