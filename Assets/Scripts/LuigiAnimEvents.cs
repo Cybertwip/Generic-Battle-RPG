@@ -46,6 +46,8 @@ public class LuigiAnimEvents : MonoBehaviour
 
             GetBattleMenu();
 
+            battleManager.GetComponent<Battle_Menu>().partyMembers.Add(this.gameObject);
+
             ///////////
             /// BEGIN PILE OF CRAP
             /// 

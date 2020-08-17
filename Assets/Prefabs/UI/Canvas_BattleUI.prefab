@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3169414720460469860}
   - component: {fileID: 123143096677176220}
   - component: {fileID: 4531997725201015237}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: FlowerPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 1781648205715161015}
   - component: {fileID: 1781648205715161013}
   - component: {fileID: 1781648205715161014}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Img_ItemDropDown_Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -163,7 +163,7 @@ GameObject:
   - component: {fileID: 1781648205789960078}
   - component: {fileID: 1781648205789960079}
   - component: {fileID: 10224244295548002}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Button_AttackDropDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -312,7 +312,7 @@ GameObject:
   - component: {fileID: 1781648205869115094}
   - component: {fileID: 1781648205869115092}
   - component: {fileID: 1781648205869115093}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Img_AttackDropDown_Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -384,7 +384,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1781648205907228066}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: BattleMenu
   m_TagString: BattleMenu
   m_Icon: {fileID: 0}
@@ -425,7 +425,7 @@ GameObject:
   - component: {fileID: 1781648205918626096}
   - component: {fileID: 1781648205918626102}
   - component: {fileID: 1781648205918626103}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Img_DefenseDropDown_Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -501,7 +501,7 @@ GameObject:
   - component: {fileID: 1781648205949577951}
   - component: {fileID: 1781648205949577944}
   - component: {fileID: 860539752154131271}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Button_ItemDropDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -652,7 +652,7 @@ GameObject:
   - component: {fileID: 1781648206306477968}
   - component: {fileID: 1781648206306477969}
   - component: {fileID: 2607470896396180776}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Button_MagicDropDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -801,7 +801,7 @@ GameObject:
   - component: {fileID: 1781648206570620364}
   - component: {fileID: 1781648206570620354}
   - component: {fileID: 1781648206570620355}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: TMP_ItemDropDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -958,7 +958,7 @@ GameObject:
   - component: {fileID: 1781648207122528843}
   - component: {fileID: 1781648207122528841}
   - component: {fileID: 1781648207122528842}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: TMP_MagicDropDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1115,7 +1115,7 @@ GameObject:
   - component: {fileID: 1781648207157828880}
   - component: {fileID: 1781648207157828886}
   - component: {fileID: 1781648207157828887}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: TMP_DefenseDropDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1273,7 +1273,7 @@ GameObject:
   - component: {fileID: 1781648207254349544}
   - component: {fileID: 1781648207254349545}
   - component: {fileID: 1781648207254349546}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Canvas_BattleUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1373,7 +1373,7 @@ GameObject:
   - component: {fileID: 1781648207607152950}
   - component: {fileID: 1781648207607152948}
   - component: {fileID: 1781648207607152949}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Img_MagicDropDown_Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1447,7 +1447,7 @@ GameObject:
   - component: {fileID: 1781648207644264334}
   - component: {fileID: 1781648207644264332}
   - component: {fileID: 1781648207644264333}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: TMP_AttackDropDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1606,7 +1606,7 @@ GameObject:
   - component: {fileID: 1781648207702094319}
   - component: {fileID: 1781648207702094312}
   - component: {fileID: 6961953526439152780}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Button_DefenseDropDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1754,7 +1754,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5140539744947445915}
   - component: {fileID: 2705725949372783944}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: MagicPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1905,7 +1905,7 @@ GameObject:
   - component: {fileID: 4871552949298219047}
   - component: {fileID: 8041668487492765277}
   - component: {fileID: 7253088915977499954}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: FPUsageText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1983,7 +1983,7 @@ GameObject:
   - component: {fileID: 3167625925321384532}
   - component: {fileID: 6130820019273625294}
   - component: {fileID: 3498338920012203825}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2057,7 +2057,7 @@ GameObject:
   - component: {fileID: 6499384265224184482}
   - component: {fileID: 6921633430643160745}
   - component: {fileID: 221690551483604691}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2132,7 +2132,7 @@ GameObject:
   - component: {fileID: 2076921819789574953}
   - component: {fileID: 6400093391968575610}
   - component: {fileID: 7848736454006869767}
-  m_Layer: 0
+  m_Layer: 30
   m_Name: FPAvailableText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2206,10 +2206,65 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1781648207254349547}
     m_Modifications:
+    - target: {fileID: 232515091717520467, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 533817780455033098, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 955861684172579294, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1226222795167843406, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1226222795341838664, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1226222795599387338, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1226222796315371663, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1588733591302208837, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 2015026406311220544, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 4900059673298075407, guid: aa75bc40f31181a4ea210d4731cd21ab,
         type: 3}
       propertyPath: m_Name
       value: BattleHUD0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4900059673298075407, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5044077770987638695, guid: aa75bc40f31181a4ea210d4731cd21ab,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 7997878834454938776, guid: aa75bc40f31181a4ea210d4731cd21ab,
         type: 3}
@@ -2331,6 +2386,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1781648205789960072}
     m_Modifications:
+    - target: {fileID: 5233203459104342352, guid: 3ede94645e9234440ac68683b2e08ce8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 5233203459440336320, guid: 3ede94645e9234440ac68683b2e08ce8,
         type: 3}
       propertyPath: m_Name
@@ -2340,6 +2400,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5233203459440336320, guid: 3ede94645e9234440ac68683b2e08ce8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5233203459440336321, guid: 3ede94645e9234440ac68683b2e08ce8,
         type: 3}
@@ -2446,6 +2511,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 5233203459679480670, guid: 3ede94645e9234440ac68683b2e08ce8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3ede94645e9234440ac68683b2e08ce8, type: 3}
 --- !u!224 &1781648207066500432 stripped
@@ -2461,6 +2531,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1781648205949577945}
     m_Modifications:
+    - target: {fileID: 5401013006411032727, guid: 0170ad52f3b27bf4aa7c5c461fbd0b39,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5401013007154782606, guid: 0170ad52f3b27bf4aa7c5c461fbd0b39,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 5401013007757107704, guid: 0170ad52f3b27bf4aa7c5c461fbd0b39,
         type: 3}
       propertyPath: m_Name
@@ -2470,6 +2550,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5401013007757107704, guid: 0170ad52f3b27bf4aa7c5c461fbd0b39,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5401013007757107711, guid: 0170ad52f3b27bf4aa7c5c461fbd0b39,
         type: 3}
@@ -2591,6 +2676,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1781648207702094313}
     m_Modifications:
+    - target: {fileID: 8381197773757638097, guid: 8269930aba8ebe1429adf1216d30e639,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 8381197773929214137, guid: 8269930aba8ebe1429adf1216d30e639,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2706,6 +2796,16 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8381197773929214142, guid: 8269930aba8ebe1429adf1216d30e639,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 8381197774480601788, guid: 8269930aba8ebe1429adf1216d30e639,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8269930aba8ebe1429adf1216d30e639, type: 3}
 --- !u!224 &1781648206449807823 stripped
@@ -2721,6 +2821,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1781648206306477970}
     m_Modifications:
+    - target: {fileID: 7234628331655874386, guid: 3551bb35e3020ef43a7590d52f4c0d47,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 7234628331950723142, guid: 3551bb35e3020ef43a7590d52f4c0d47,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 7234628333518311233, guid: 3551bb35e3020ef43a7590d52f4c0d47,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2840,6 +2950,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7234628333518311246, guid: 3551bb35e3020ef43a7590d52f4c0d47,
+        type: 3}
+      propertyPath: m_Layer
+      value: 30
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3551bb35e3020ef43a7590d52f4c0d47, type: 3}

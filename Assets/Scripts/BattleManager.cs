@@ -156,10 +156,6 @@ public class BattleManager : MonoBehaviour
 
     // BattleMenu
     public GameObject battleMenu;
-    public List<Button> magicButtons;
-    public Button attackButton;
-    public Button defendButton;
-    public List<Button> itemButtons;
 
     // Character prefabs
     public GameObject playerPrefab;
@@ -188,30 +184,6 @@ public class BattleManager : MonoBehaviour
 
         state = BattleState.START;
         StartCoroutine(SetupBattle());
-
-        // initialize BattleMenu buttons:
-        attackButton = battleMenu.transform.GetChild(1).GetChild(2).GetChild(0).GetChild(0).GetComponent<Button>();
-        defendButton = battleMenu.transform.GetChild(2).GetChild(2).GetChild(0).GetChild(0).GetComponent<Button>();
-
-        // get all the magic buttons:
-        Transform magicContainer = battleMenu.transform.GetChild(0).GetChild(2).GetChild(0);
-        int numMagicChildren = magicContainer.transform.childCount;
-        for (int i = 0; i < numMagicChildren; i++)
-        {
-            magicButtons.Add(magicContainer.GetChild(i).GetComponent<Button>());
-            //Debug.Log(i + "th magic button is " + magicButtons[i].GetComponentInChildren<TMP_Text>().text);
-            //yes, this worked!
-        }
-
-        // get all the item buttons:
-        Transform itemContainer = battleMenu.transform.GetChild(3).GetChild(2).GetChild(0);
-        int numItemChildren = itemContainer.transform.childCount;
-        for (int i = 0; i < numItemChildren; i++)
-        {
-            itemButtons.Add(itemContainer.GetChild(i).GetComponent<Button>());
-            //Debug.Log(i + "th item button is " + itemButtons[i].GetComponentInChildren<TMP_Text>().text);
-            //yes, this worked!
-        }
     }
 
     IEnumerator SetupBattle()
@@ -303,8 +275,28 @@ public class BattleManager : MonoBehaviour
         pm0currentHP.text = playerParams.currentHP.ToString(); 
     }
 
+    GameObject GetClickedGameObject()
+    {
+        LayerMask mask = LayerMask.GetMask("Player");
+        LayerMask ignoreMask = LayerMask.GetMask("BattleMenu");
+
+        // Builds a ray from camera point of view to the mouse position
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        // Casts the ray and get the first game object hit
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, mask) && Input.GetMouseButtonDown(0))
+            return hit.transform.gameObject;
+        else
+            return null;
+    }
     private void Update()
     {
+        if (GetClickedGameObject() != null)
+        {
+            battleMenu.SetActive(!battleMenu.activeInHierarchy);
+        }
+
+
         SetHudHP();
 
         switch (state)

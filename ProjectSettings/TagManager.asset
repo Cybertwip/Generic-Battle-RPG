@@ -45,8 +45,8 @@ TagManager:
   - Doors07
   - Weapon
   - Lights
-  - 
-  - 
+  - Player
+  - GUI
   - 
   m_SortingLayers:
   - name: Default

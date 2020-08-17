@@ -47,5 +47,5 @@ MonoBehaviour:
   menuName: Fireball - 5 FP
   description: Set your opponent on fire. Oh, the humanity!
   hpDamage: 10
-  fpCost: 5
+  fpCost: 3
   spclType: 1

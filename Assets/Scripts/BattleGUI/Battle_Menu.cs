@@ -35,6 +35,11 @@ public class Battle_Menu : MonoBehaviour
     [SerializeField] GameObject defenseContainer;
     [SerializeField] GameObject defenseContainerParent;
 
+
+    [SerializeField] GameObject availableFlowerPoints;
+
+    public List<GameObject> partyMembers = new List<GameObject>();
+
     public void Awake()
     {
         Setup(); // must query buttons for each character
@@ -91,6 +96,7 @@ public class Battle_Menu : MonoBehaviour
 
             magicPanelComponent.buttons[componentCounter++] = newMagicButton;
 
+            newMagicButton.GetComponent<MagicButton>().magicPanel = magicPanel;
 
 
             var buttonRectTransform = newMagicButton.GetComponent<RectTransform>();
@@ -165,5 +171,11 @@ public class Battle_Menu : MonoBehaviour
             GameObject newItemButton = Instantiate(buttonTemplate, itemContainer.transform, false);
             newItemButton.GetComponentInChildren<TMP_Text>().text = itemList[i].GetComponent<Item>().menuName;
         }
+    }
+
+
+
+    public void Update()
+    {
     }
 }

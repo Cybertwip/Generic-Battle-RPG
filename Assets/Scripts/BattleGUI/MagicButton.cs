@@ -6,7 +6,7 @@ public class MagicButton : MonoBehaviour
 {
     // Start is called before the first frame update
 
-    [SerializeField] GameObject magicPanel;
+    public GameObject magicPanel;
 
     [SerializeField] GameObject[] buttons = new GameObject[4];
 
@@ -48,10 +48,8 @@ public class MagicButton : MonoBehaviour
 
     public void CloseOnClick()
     {
-        for (int i = 0; i < 4; i++)
-        {
-            buttons[i].transform.GetChild(2).gameObject.SetActive(false);
-        }
+        GameObject secondParent = gameObject.transform.parent.transform.gameObject;
+        secondParent.SetActive(false);
     }
 
 
